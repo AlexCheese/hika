@@ -234,11 +234,7 @@ export class Game {
 	}
 
 	public getSize(): Vec {
-		return this.size;
-	}
-
-	public setSize(size: Vec) {
-		throw new Error("deprecated lmao");
+		return new Vec(this.size.x, this.size.y, this.size.z, this.size.w);
 	}
 
 	public getPiece(pos: Vec): Piece | null {
@@ -280,7 +276,6 @@ export class Game {
 		if (kingCheck) {
 			for (let [ind, mov] of moves.entries()) {
 				if (this.putsKingInCheck(mov)) {
-					//delete move
 					moves.splice(ind, 1);
 				}
 			}
@@ -430,20 +425,6 @@ export class Game {
 
 	public getMovesForTeam(team: number, kingCheck: Boolean = true): Move[] {
 		let moves: Move[] = [];
-		// for (let w = 0; w < this.size.w; w++) {
-		// 	for (let z = 0; z < this.size.z; z++) {
-		// 		for (let y = 0; y < this.size.z; y++) {
-		// 			for (let x = 0; x < this.size.z; x++) {
-		// 				let loc = new Vec(x, y, z, w);
-		// 				let piece = this.getPiece(loc);
-		// 				if (piece === null) continue;
-		// 				if (piece.team === team) {
-		// 					moves = moves.concat(this.getMoves(loc, kingCheck));
-		// 				}
-		// 			}
-		// 		}
-		// 	}
-		// }
 		this.forPiece((loc: Vec, piece: Piece | null) => {
 			if (piece && piece.team === team)
 				moves = moves.concat(this.getMoves(loc, kingCheck));
