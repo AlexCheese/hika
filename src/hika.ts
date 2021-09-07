@@ -64,7 +64,7 @@ export class Game {
 		this.size = new Vec(parseInt(rawBoardSizeArr[0]), parseInt(rawBoardSizeArr[1]), parseInt(rawBoardSizeArr[2]), parseInt(rawBoardSizeArr[3]));
 
 		// Initialize layout
-		let wInput = inputArr[1].split("|");
+		let wInput = inputArr[1] ? inputArr[1].split("|") : [];
 		for (let w = 0; this.layout.length < this.size.w; w++) {
 			let wLayer = [];
 			let zInput = wInput[w] ? wInput[w].split("/") : [];
