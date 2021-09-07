@@ -397,13 +397,13 @@ export class Game {
 	public putsKingInCheck(mov: Move): Boolean {
 		let piece: Piece | null = this.getPiece(mov.src);
 		if (piece == null) return false;
+		let layoutClone = JSON.parse(JSON.stringify(this.layout));
+		let taken = this.move(mov);
 		let kings: Vec[] = [];
 		this.forPiece((loc: Vec, target: Piece | null) => {
 			if (target && piece && target.id === 'K' && target.team !== piece.team)
 				kings.push(loc);
 		});
-		let layoutClone = JSON.parse(JSON.stringify(this.layout));
-		let taken = this.move(mov);
 		let moves = this.getMovesForTeam(piece.team ? 0 : 1, false);
 		this.layout = layoutClone;
 		for (let m of moves) {
