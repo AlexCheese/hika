@@ -15,6 +15,14 @@ export class Vec {
 	clone(): Vec {
 		return new Vec(this.x, this.y, this.z, this.w);
 	}
+	equals(v: Vec): Boolean {
+		if (this.x === v.x && this.y === v.y && this.z === v.z && this.w === v.w)
+			return true;
+		else return false;
+	}
+	scale(s: number): Vec {
+		return new Vec(this.x * s, this.y * s, this.z * s, this.w * s);
+	}
 }
 
 export type Piece = {
