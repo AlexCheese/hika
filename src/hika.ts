@@ -50,7 +50,7 @@ export type Move = {
 }
 
 export class Game {
-	private size: Vec;
+	private readonly size: Vec;
 	private layout: (Piece | null)[][][][] = [];
 	private pieceDict: { [id: string]: PieceRule } = {};
 
@@ -235,6 +235,15 @@ export class Game {
 
 	public getSize(): Vec {
 		return new Vec(this.size.x, this.size.y, this.size.z, this.size.w);
+	}
+
+	public isInBounds(pos: Vec): Boolean {
+		if (pos.x >= 0 && pos.x < this.size.x
+			&& pos.y >= 0 && pos.y < this.size.y
+			&& pos.z >= 0 && pos.z < this.size.z
+			&& pos.w >= 0 && pos.w < this.size.w)
+			return true;
+		else return false;
 	}
 
 	public getPiece(pos: Vec): Piece | null {
