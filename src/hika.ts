@@ -437,7 +437,7 @@ export class Game {
 
 	public isValidMove(mov: Move, kingCheck: Boolean = true): Boolean {
 		let moves = this.getMoves(mov.src);
-		return moves.includes(mov);
+		return moves.some(a => a.src.equals(mov.src) && a.dst.equals(mov.dst));
 	}
 
 	public getMovesForTeam(team: number, kingCheck: Boolean = true): Move[] {
