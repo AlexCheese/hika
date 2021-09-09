@@ -45,6 +45,7 @@ type Path = {
 	attack?: number;
 	direction?: Vec;
 	branches?: (string | Path)[];
+	e?: string;
 };
 
 type PieceRule = {
@@ -55,6 +56,7 @@ export type Move = {
 	src: Vec;
 	dst: Vec;
 	int?: Vec[];
+	e?: string;
 }
 
 export class Game {
@@ -272,6 +274,10 @@ export class Game {
 
 	public move(mov: Move): Piece | null {
 		let piece = this.setPiece(mov.src, null);
+		if (piece) {
+			if (piece.flags.includes(0)) piece.flags = [];
+			// if (piece.id === 'R')
+		}
 		let target = this.setPiece(mov.dst, piece);
 		return target;
 	}
