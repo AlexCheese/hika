@@ -16,7 +16,8 @@ export class Vec {
 		return new Vec(this.x, this.y, this.z, this.w);
 	}
 	equals(v: Vec): Boolean {
-		if (this.x === v.x && this.y === v.y && this.z === v.z && this.w === v.w) return true;
+		if (this.x === v.x && this.y === v.y && this.z === v.z && this.w === v.w)
+			return true;
 		else return false;
 	}
 	scale(s: number): Vec {
@@ -138,7 +139,12 @@ export class Game {
 				{
 					repeat: Infinity,
 					attack: 1,
-					branches: [{ direction: new Vec(1) }, { direction: new Vec(-1) }, { direction: new Vec(0, 1) }, { direction: new Vec(0, -1) }]
+					branches: [
+						{ direction: new Vec(1) },
+						{ direction: new Vec(-1) },
+						{ direction: new Vec(0, 1) },
+						{ direction: new Vec(0, -1) }
+					]
 				}
 			]
 		};
@@ -148,7 +154,12 @@ export class Game {
 				{
 					repeat: Infinity,
 					attack: 1,
-					branches: [{ direction: new Vec(1, 1) }, { direction: new Vec(1, -1) }, { direction: new Vec(-1, 1) }, { direction: new Vec(-1, -1) }]
+					branches: [
+						{ direction: new Vec(1, 1) },
+						{ direction: new Vec(1, -1) },
+						{ direction: new Vec(-1, 1) },
+						{ direction: new Vec(-1, -1) }
+					]
 				}
 			]
 		};
@@ -244,7 +255,10 @@ export class Game {
 	}
 
 	public isInBounds(pos: Vec): Boolean {
-		if (pos.x >= 0 && pos.x < this.size.x && pos.y >= 0 && pos.y < this.size.y && pos.z >= 0 && pos.z < this.size.z && pos.w >= 0 && pos.w < this.size.w)
+		if (pos.x >= 0 && pos.x < this.size.x
+			&& pos.y >= 0 && pos.y < this.size.y
+			&& pos.z >= 0 && pos.z < this.size.z
+			&& pos.w >= 0 && pos.w < this.size.w)
 			return true;
 		else return false;
 	}
@@ -254,7 +268,7 @@ export class Game {
 			let piece = this.layout[pos.w][pos.z][pos.y][pos.x];
 			if (piece === undefined) throw new Error("Cannot access out of bounds position");
 			return piece;
-		} catch (e) {
+		} catch(e) {
 			throw new Error("Cannot access out of bounds position");
 		}
 	}
@@ -363,13 +377,13 @@ export class Game {
 					break;
 				}
 				if (view === null) {
-					moves.push(new Move(pos, loc));
+					moves.push({ src: pos, dst: loc });
 					continue;
 				}
 				if (view.team == piece.team) break;
 				if (atkCount == stats.attack) break;
 				atkCount++;
-				moves.push(new Move(pos, loc));
+				moves.push({ src: pos, dst: loc });
 				if (atkCount == stats.attack) break;
 			}
 		} else if (path.branches) {
@@ -413,7 +427,8 @@ export class Game {
 		let taken = this.move(mov);
 		let kings: Vec[] = [];
 		this.forPiece((loc: Vec, target: Piece | null) => {
-			if (target && piece && target.id === "K" && target.team !== piece.team) kings.push(loc);
+			if (target && piece && target.id === 'K' && target.team !== piece.team)
+				kings.push(loc);
 		});
 		let moves = this.getMovesForTeam(piece.team ? 0 : 1, false);
 		this.layout = layoutClone;
@@ -437,7 +452,8 @@ export class Game {
 	public getMovesForTeam(team: number, kingCheck: Boolean = true): Move[] {
 		let moves: Move[] = [];
 		this.forPiece((loc: Vec, piece: Piece | null) => {
-			if (piece && piece.team === team) moves = moves.concat(this.getMoves(loc, kingCheck));
+			if (piece && piece.team === team)
+				moves = moves.concat(this.getMoves(loc, kingCheck));
 		});
 		return moves;
 	}
