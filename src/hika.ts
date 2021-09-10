@@ -105,6 +105,7 @@ export class Game {
 								team: pid == pid.toUpperCase() ? 0 : 1,
 								flags: []
 							};
+							this.pois.push({piece: piece, pos: new Vec(x, y, z, w)});
 							switch (pid.toUpperCase()) {
 								case "P":
 									piece.flags = [0];
@@ -270,15 +271,46 @@ export class Game {
 		}
 	}
 
-	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
+	private setPieceLayout(pos: Vec, piece: Piece | null = null): Piece | null {
 		let target = this.getPiece(pos);
 		this.layout[pos.w][pos.z][pos.y][pos.x] = piece;
 		return target;
 	}
 
+	private setPiecePoi(pos: Vec, piece: Piece | null = null): Piece | null {
+		let target: Piece | null = null;
+		for (let i of this.pois) {
+			if (i.pos.equals(pos)) {
+				target = i.piece;
+				this.pois.splice(this.pois.indexOf(i), 1);
+			}
+		}
+		if (piece !== null) this.pois.push({pos:pos, piece:piece});
+		return target;
+	}
+
+	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
+		let target = this.setPieceLayout(pos, piece);
+		this.setPiecePoi(pos, piece);
+		return target;
+	}
+
+	private removePoi(pos: Vec): Piece | null {
+		let target: Piece | null = null;
+		for (let i of this.pois) {
+			if (i.pos.equals(pos)) {
+				target = i.piece;
+				this.pois.splice(this.pois.indexOf(i), 1);
+			}
+		}
+		return target;
+	}
+
 	public move(mov: Move): Piece | null {
-		let piece = this.setPiece(mov.src, null);
-		let target = this.setPiece(mov.dst, piece);
+		let piece = this.setPieceLayout(mov.src, null);
+		let target = this.setPieceLayout(mov.dst, piece);
+		this.setPiecePoi(mov.dst, piece);
+		this.removePoi(mov.src);
 		return target;
 	}
 
