@@ -57,9 +57,15 @@ export type Move = {
 	int?: Vec[];
 }
 
+export type PieceVec ={
+	piece: Piece;
+	pos: Vec;
+}
+
 export class Game {
 	private readonly size: Vec;
 	private layout: (Piece | null)[][][][] = [];
+	private pois: PieceVec[] = [];
 	private pieceDict: { [id: string]: PieceRule } = {};
 
 	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
