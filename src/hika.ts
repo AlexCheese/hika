@@ -398,7 +398,7 @@ export class Game {
 		return moves;
 	}
 
-	public forPiece(fn: Function) {
+	public forPiece(fn: (loc: Vec, piece: Piece | null) => void): void {
 		for (let w = 0; w < this.size.w && w < this.layout.length; w++) {
 			for (let z = 0; z < this.size.z && this.layout[w].length; z++) {
 				for (let y = 0; y < this.size.y && this.layout[w][z].length; y++) {
