@@ -57,9 +57,11 @@ export type Move = {
 	int?: Vec[];
 }
 
+export type Space = Piece | null;
+
 export class Game {
 	private readonly size: Vec;
-	private layout: (Piece | null)[][][][] = [];
+	private layout: (Space)[][][][] = [];
 	private pieceDict: { [id: string]: PieceRule } = {};
 
 	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
@@ -254,7 +256,7 @@ export class Game {
 		else return false;
 	}
 
-	public getPiece(pos: Vec): Piece | null {
+	public getPiece(pos: Vec): Space {
 		try {
 			let piece = this.layout[pos.w][pos.z][pos.y][pos.x];
 			if (piece === undefined) throw new Error("Cannot access out of bounds position");
@@ -264,13 +266,13 @@ export class Game {
 		}
 	}
 
-	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
+	public setPiece(pos: Vec, piece: Space = null): Space {
 		let target = this.getPiece(pos);
 		this.layout[pos.w][pos.z][pos.y][pos.x] = piece;
 		return target;
 	}
 
-	public move(mov: Move): Piece | null {
+	public move(mov: Move): Space {
 		let piece = this.setPiece(mov.src, null);
 		let target = this.setPiece(mov.dst, piece);
 		return target;
@@ -412,12 +414,12 @@ export class Game {
 	}
 
 	public putsKingInCheck(mov: Move): Boolean {
-		let piece: Piece | null = this.getPiece(mov.src);
+		let piece: Space = this.getPiece(mov.src);
 		if (piece == null) return false;
 		let layoutClone = JSON.parse(JSON.stringify(this.layout));
 		let taken = this.move(mov);
 		let kings: Vec[] = [];
-		this.forPiece((loc: Vec, target: Piece | null) => {
+		this.forPiece((loc: Vec, target: Space) => {
 			if (target && piece && target.id === 'K' && target.team !== piece.team)
 				kings.push(loc);
 		});
@@ -429,7 +431,7 @@ export class Game {
 		return false;
 	}
 
-	public moveIfValid(mov: Move): Piece | null | Boolean {
+	public moveIfValid(mov: Move): Space | Boolean {
 		if (this.isValidMove(mov)) {
 			return this.move(mov);
 		} else return false;
@@ -442,7 +444,7 @@ export class Game {
 
 	public getMovesForTeam(team: number, kingCheck: Boolean = true): Move[] {
 		let moves: Move[] = [];
-		this.forPiece((loc: Vec, piece: Piece | null) => {
+		this.forPiece((loc: Vec, piece: Space) => {
 			if (piece && piece.team === team)
 				moves = moves.concat(this.getMoves(loc, kingCheck));
 		});
