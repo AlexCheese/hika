@@ -134,7 +134,11 @@ export class Game {
 						{ direction: new Vec(1) },
 						{ direction: new Vec(-1) },
 						{ direction: new Vec(0, 1) },
-						{ direction: new Vec(0, -1) }
+						{ direction: new Vec(0, -1) },
+						{ direction: new Vec(0, 0, 1) },
+						{ direction: new Vec(0, 0, -1) },
+						{ direction: new Vec(0, 0, 0, 1) },
+						{ direction: new Vec(0, 0, 0, -1) }
 					]
 				}
 			]
