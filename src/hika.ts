@@ -252,6 +252,10 @@ export class Game {
 		return new Vec(this.size.x, this.size.y, this.size.z, this.size.w);
 	}
 
+	public getPois(): PieceVec[] {
+		return this.pois;
+	}
+
 	public isInBounds(pos: Vec): Boolean {
 		if (pos.x >= 0 && pos.x < this.size.x
 			&& pos.y >= 0 && pos.y < this.size.y
