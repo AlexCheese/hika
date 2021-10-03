@@ -45,6 +45,7 @@ type Path = {
 	attack?: number;
 	direction?: Vec;
 	branches?: (string | Path)[];
+	e?: string;
 };
 
 type PieceRule = {
@@ -55,6 +56,7 @@ export type Move = {
 	src: Vec;
 	dst: Vec;
 	int?: Vec[];
+	e?: string;
 }
 
 export class Game {
