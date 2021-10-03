@@ -45,18 +45,25 @@ type Path = {
 	attack?: number;
 	direction?: Vec;
 	branches?: (string | Path)[];
-	e?: string;
 };
 
 type PieceRule = {
 	pathTree: Path[];
 };
 
-export type Move = {
+export class Move {
 	src: Vec;
 	dst: Vec;
 	int?: Vec[];
-	e?: string;
+	constructor(src: Vec, dst: Vec, int?: Vec[]) {
+		this.src = src;
+		this.dst = dst;
+		this.int = int;
+	}
+	equals(move: Move): Boolean {
+		if (this.src.equals(move.src) && this.dst.equals(move.dst)) return true;
+		else return false;
+	}
 }
 
 export class Game {
@@ -374,13 +381,13 @@ export class Game {
 					break;
 				}
 				if (view === null) {
-					moves.push({ src: pos, dst: loc });
+					moves.push(new Move(pos, loc));
 					continue;
 				}
 				if (view.team == piece.team) break;
 				if (atkCount == stats.attack) break;
 				atkCount++;
-				moves.push({ src: pos, dst: loc });
+				moves.push(new Move(pos, loc));
 				if (atkCount == stats.attack) break;
 			}
 		} else if (path.branches) {
