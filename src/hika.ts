@@ -377,13 +377,13 @@ export class Game {
 					break;
 				}
 				if (view === null) {
-					moves.push({ src: pos, dst: loc });
+					moves.push(new Move(pos, loc));
 					continue;
 				}
 				if (view.team == piece.team) break;
 				if (atkCount == stats.attack) break;
 				atkCount++;
-				moves.push({ src: pos, dst: loc });
+				moves.push(new Move(pos, loc));
 				if (atkCount == stats.attack) break;
 			}
 		} else if (path.branches) {
