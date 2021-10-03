@@ -281,6 +281,8 @@ export class Game {
 
 	public move(mov: Move): Piece | null {
 		let piece = this.setPiece(mov.src, null);
+		// hacky workaround
+		if (piece && piece.flags.includes(0)) piece.flags = [];
 		let target = this.setPiece(mov.dst, piece);
 		return target;
 	}
@@ -300,11 +302,13 @@ export class Game {
 		}
 
 		if (kingCheck) {
-			for (let [ind, mov] of moves.entries()) {
-				if (this.putsKingInCheck(mov)) {
-					moves.splice(ind, 1);
+			let checkedMoves = [];
+			for (let i = 0; i < moves.length; i++) {
+				if (!this.putsKingInCheck(moves[i], piece.team)) {
+					checkedMoves.push(moves[i]);
 				}
 			}
+			return checkedMoves;
 		}
 
 		return moves;
@@ -420,20 +424,22 @@ export class Game {
 		}
 	}
 
-	public putsKingInCheck(mov: Move): Boolean {
+	public putsKingInCheck(mov: Move, team: number): Boolean {
 		let piece: Piece | null = this.getPiece(mov.src);
 		if (piece == null) return false;
 		let layoutClone = JSON.parse(JSON.stringify(this.layout));
 		let taken = this.move(mov);
 		let kings: Vec[] = [];
 		this.forPiece((loc: Vec, target: Piece | null) => {
-			if (target && piece && target.id === 'K' && target.team !== piece.team)
+			if (target && piece && target.id === 'K' && target.team == team)
 				kings.push(loc);
 		});
-		let moves = this.getMovesForTeam(piece.team ? 0 : 1, false);
+		let moves = this.getMovesForTeam(team ? 0 : 1, false);
 		this.layout = layoutClone;
 		for (let m of moves) {
-			if (kings.includes(m.dst)) return true;
+			for (let k of kings) {
+				if (k.equals(m.dst)) return true;
+			}
 		}
 		return false;
 	}
@@ -445,8 +451,8 @@ export class Game {
 	}
 
 	public isValidMove(mov: Move, kingCheck: Boolean = true): Boolean {
-		let moves = this.getMoves(mov.src);
-		return moves.includes(mov);
+		let moves = this.getMoves(mov.src, kingCheck);
+		return moves.some(a => a.src.equals(mov.src) && a.dst.equals(mov.dst));
 	}
 
 	public getMovesForTeam(team: number, kingCheck: Boolean = true): Move[] {
