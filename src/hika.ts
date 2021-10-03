@@ -272,6 +272,8 @@ export class Game {
 
 	public move(mov: Move): Piece | null {
 		let piece = this.setPiece(mov.src, null);
+		// hacky workaround
+		if (piece && piece.flags.includes(0)) piece.flags = [];
 		let target = this.setPiece(mov.dst, piece);
 		return target;
 	}
@@ -424,7 +426,9 @@ export class Game {
 		let moves = this.getMovesForTeam(piece.team ? 0 : 1, false);
 		this.layout = layoutClone;
 		for (let m of moves) {
-			if (kings.includes(m.dst)) return true;
+			for (let k of kings) {
+				if (k.equals(m.dst)) return true;
+			}
 		}
 		return false;
 	}
