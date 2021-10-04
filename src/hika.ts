@@ -1,3 +1,11 @@
+/**
+ * Represents a 4-dimensional vector.
+ * @class
+ * @param {number} [x=0] - The x component.
+ * @param {number} [y=0] - The y component.
+ * @param {number} [z=0] - The z component.
+ * @param {number} [w=0] - The w component.
+ */
 export class Vec {
 	public x: number;
 	public y: number;
@@ -9,17 +17,36 @@ export class Vec {
 		this.z = isNaN(z) ? 0 : z;
 		this.w = isNaN(w) ? 0 : w;
 	}
+	/**
+	 * Sums two vectors.
+	 * @param {Vec} v - The vector to add.
+	 * @returns {Vec} The sum of this vector and the given vector.
+	 */
 	add(v: Vec): Vec {
 		return new Vec(this.x + v.x, this.y + v.y, this.z + v.z, this.w + v.w);
 	}
+	/**
+	 * Creates a soft-copy of this vector.
+	 * @returns {Vec} A new vector with the same components as this vector.
+	 */
 	clone(): Vec {
 		return new Vec(this.x, this.y, this.z, this.w);
 	}
+	/**
+	 * Tests if this vector is equal to another vector.
+	 * @param {Vec} v - The vector to compare to.
+	 * @returns {boolean} True if the vectors are equal, false otherwise.
+	 */
 	equals(v: Vec): Boolean {
 		if (this.x === v.x && this.y === v.y && this.z === v.z && this.w === v.w)
 			return true;
 		else return false;
 	}
+	/**
+	 * Multiplies this vector by a scalar.
+	 * @param {number} s - The scalar to multiply by.
+	 * @returns {Vec} The product of this vector and the scalar.
+	 */
 	scale(s: number): Vec {
 		return new Vec(this.x * s, this.y * s, this.z * s, this.w * s);
 	}
@@ -51,6 +78,13 @@ type PieceRule = {
 	pathTree: Path[];
 };
 
+/**
+ * Represents a move from one place to another.
+ * @class
+ * @param {Vec} src - The source position.
+ * @param {Vec} dst - The destination position.
+ * @param {number} [int]
+ */
 export class Move {
 	src: Vec;
 	dst: Vec;
@@ -71,6 +105,11 @@ export type PieceVec ={
 	pos: Vec;
 }
 
+/**
+ * The main class for the library.
+ * @class
+ * @param {string} [input = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr"] - The input string for the board's initial state.
+ */
 export class Game {
 	private readonly size: Vec;
 	private layout: (Piece | null)[][][][] = [];
@@ -136,6 +175,10 @@ export class Game {
 		this.initPieceDict();
 	} // haha love this constructor
 
+	/**
+	 * Initializes the movement patterns for each vanilla piece.
+	 * @private
+	 */
 	private initPieceDict() {
 		// Construct piece dictionary
 		// The following standard data may be encoded
@@ -321,14 +364,27 @@ export class Game {
 		};
 	}
 
+	/**
+	 * Get the size of the board.
+	 * @returns {Vec}
+	 */
 	public getSize(): Vec {
 		return new Vec(this.size.x, this.size.y, this.size.z, this.size.w);
 	}
 
+	/**
+	 * Get all of the POIs.
+	 * @returns {PieceVec[]}
+	 */
 	public getPois(): PieceVec[] {
 		return this.pois;
 	}
 
+	/**
+	 * Checks if a vector is within the bounds of the board.
+	 * @param {Vec} pos
+	 * @returns {boolean}
+	 */
 	public isInBounds(pos: Vec): Boolean {
 		if (pos.x >= 0 && pos.x < this.size.x
 			&& pos.y >= 0 && pos.y < this.size.y
@@ -338,6 +394,12 @@ export class Game {
 		else return false;
 	}
 
+	/**
+	 * Get the piece at a position.
+	 * @param {Vec} pos
+	 * @returns {Piece | null}
+	 * @throws {Error} if the position is not on the board.
+	 */
 	public getPiece(pos: Vec): Piece | null {
 		try {
 			let piece = this.layout[pos.w][pos.z][pos.y][pos.x];
@@ -366,6 +428,13 @@ export class Game {
 		return target;
 	}
 
+	/**
+	 * Set a piece at a position.
+	 * @param {Vec} pos
+	 * @param {Piece | null} piece
+	 * @returns {Piece | null} the piece that was replaced.
+	 * @throws {Error} if the position is not on the board.
+	 */
 	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
 		let target = this.setPieceLayout(pos, piece);
 		this.setPiecePoi(pos, piece);
@@ -383,6 +452,13 @@ export class Game {
 		return target;
 	}
 
+	/**
+	 * Move a piece from one position to another.
+	 * @param {Move} mov
+	 * @returns {Piece | null} the piece that was replaced at the target position.
+	 * @throws {Error} if the source position is not on the board.
+	 * @throws {Error} if the target position is not on the board.
+	 */
 	public move(mov: Move): Piece | null {
 		let piece = this.setPieceLayout(mov.src, null);
 		let target = this.setPieceLayout(mov.dst, piece);
@@ -393,6 +469,12 @@ export class Game {
 		return target;
 	}
 
+	/**
+	 * Get all possible moves for a piece.
+	 * @param {Vec} pos
+	 * @param {boolean} [kingCheck=true]
+	 * @returns {Move[]}
+	 */
 	public getMoves(pos: Vec, kingCheck: Boolean = true): Move[] {
 		let moves: Move[] = [];
 		let piece = this.getPiece(pos);
@@ -517,6 +599,10 @@ export class Game {
 		return moves;
 	}
 
+	/**
+	 * Runs a function on every piece in the board.
+	 * @param {(loc: Vec, piece: Piece | null) => void} fn The function to run.
+	 */
 	public forPiece(fn: (loc: Vec, piece: Piece | null) => void): void {
 		for (let w = 0; w < this.size.w && w < this.layout.length; w++) {
 			for (let z = 0; z < this.size.z && this.layout[w].length; z++) {
@@ -530,6 +616,12 @@ export class Game {
 		}
 	}
 
+	/**
+	 * Checks if a move puts the king in check.
+	 * @param {Move} mov The move to check.
+	 * @param {Team} team The team of the king to check.
+	 * @returns {boolean} Whether or not the king is in check.
+	 */
 	public putsKingInCheck(mov: Move, team: number): Boolean {
 		let piece: Piece | null = this.getPiece(mov.src);
 		if (piece == null) return false;
@@ -550,17 +642,35 @@ export class Game {
 		return false;
 	}
 
+	/**
+	 * Does the specified move if it is valid.
+	 * @param {Move} mov The move to do.
+	 * @returns {Piece | null | boolean} The piece that was taken, or false if the move was invalid.
+	 */
 	public moveIfValid(mov: Move): Piece | null | Boolean {
 		if (this.isValidMove(mov)) {
 			return this.move(mov);
 		} else return false;
 	}
 
+	/**
+	 * Checks if a move is valid.
+	 * @param {Move} mov The move to check.
+	 * @param {boolean} [kingCheck=true] Whether or not to check if the king is in check.
+	 * @returns {boolean} Whether or not the move is valid.
+	 */
 	public isValidMove(mov: Move, kingCheck: Boolean = true): Boolean {
 		let moves = this.getMoves(mov.src, kingCheck);
 		return moves.some(a => a.src.equals(mov.src) && a.dst.equals(mov.dst));
 	}
 
+	/**
+	 * Get all valid moves for a specified team.
+	 * @param {number} team The team to get moves for.
+	 * @param {boolean} [kingCheck=true] Whether or not to check if the king is in check.
+	 * @returns {Move[]} The valid moves for the specified team.
+	 * @see getMoves
+	 */
 	public getMovesForTeam(team: number, kingCheck: Boolean = true): Move[] {
 		let moves: Move[] = [];
 		this.forPiece((loc: Vec, piece: Piece | null) => {
