@@ -66,9 +66,15 @@ export class Move {
 	}
 }
 
+export type PieceVec ={
+	piece: Piece;
+	pos: Vec;
+}
+
 export class Game {
 	private readonly size: Vec;
 	private layout: (Piece | null)[][][][] = [];
+	private pois: PieceVec[] = [];
 	private pieceDict: { [id: string]: PieceRule } = {};
 
 	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
@@ -108,6 +114,7 @@ export class Game {
 								team: pid == pid.toUpperCase() ? 0 : 1,
 								flags: []
 							};
+							this.pois.push({piece: piece, pos: new Vec(x, y, z, w)});
 							switch (pid.toUpperCase()) {
 								case "P":
 									piece.flags = [0];
@@ -318,6 +325,10 @@ export class Game {
 		return new Vec(this.size.x, this.size.y, this.size.z, this.size.w);
 	}
 
+	public getPois(): PieceVec[] {
+		return this.pois;
+	}
+
 	public isInBounds(pos: Vec): Boolean {
 		if (pos.x >= 0 && pos.x < this.size.x
 			&& pos.y >= 0 && pos.y < this.size.y
@@ -337,17 +348,48 @@ export class Game {
 		}
 	}
 
-	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
+	private setPieceLayout(pos: Vec, piece: Piece | null = null): Piece | null {
 		let target = this.getPiece(pos);
 		this.layout[pos.w][pos.z][pos.y][pos.x] = piece;
 		return target;
 	}
 
+	private setPiecePoi(pos: Vec, piece: Piece | null = null): Piece | null {
+		let target: Piece | null = null;
+		for (let i of this.pois) {
+			if (i.pos.equals(pos)) {
+				target = i.piece;
+				this.pois.splice(this.pois.indexOf(i), 1);
+			}
+		}
+		if (piece !== null) this.pois.push({pos:pos, piece:piece});
+		return target;
+	}
+
+	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
+		let target = this.setPieceLayout(pos, piece);
+		this.setPiecePoi(pos, piece);
+		return target;
+	}
+
+	private removePoi(pos: Vec): Piece | null {
+		let target: Piece | null = null;
+		for (let i of this.pois) {
+			if (i.pos.equals(pos)) {
+				target = i.piece;
+				this.pois.splice(this.pois.indexOf(i), 1);
+			}
+		}
+		return target;
+	}
+
 	public move(mov: Move): Piece | null {
-		let piece = this.setPiece(mov.src, null);
+		let piece = this.setPieceLayout(mov.src, null);
+		let target = this.setPieceLayout(mov.dst, piece);
 		// hacky workaround
 		if (piece && piece.flags.includes(0)) piece.flags = [];
-		let target = this.setPiece(mov.dst, piece);
+		this.setPiecePoi(mov.dst, piece);
+		this.removePoi(mov.src);
 		return target;
 	}
 
