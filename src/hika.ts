@@ -385,7 +385,8 @@ export class Game {
 	 * @param {Vec} pos
 	 * @returns {boolean}
 	 */
-	public isInBounds(pos: Vec): Boolean {
+
+	public isInBounds(pos: Vec): boolean {
 		if (pos.x >= 0 && pos.x < this.size.x
 			&& pos.y >= 0 && pos.y < this.size.y
 			&& pos.z >= 0 && pos.z < this.size.z
@@ -475,7 +476,7 @@ export class Game {
 	 * @param {boolean} [kingCheck=true]
 	 * @returns {Move[]}
 	 */
-	public getMoves(pos: Vec, kingCheck: Boolean = true): Move[] {
+	public getMoves(pos: Vec, kingCheck: boolean = true): Move[] {
 		let moves: Move[] = [];
 		let piece = this.getPiece(pos);
 		if (piece === null) return [];
@@ -622,7 +623,7 @@ export class Game {
 	 * @param {Team} team The team of the king to check.
 	 * @returns {boolean} Whether or not the king is in check.
 	 */
-	public putsKingInCheck(mov: Move, team: number): Boolean {
+	public putsKingInCheck(mov: Move, team: number): boolean {
 		let piece: Piece | null = this.getPiece(mov.src);
 		if (piece == null) return false;
 		let layoutClone = JSON.parse(JSON.stringify(this.layout));
@@ -647,7 +648,7 @@ export class Game {
 	 * @param {Move} mov The move to do.
 	 * @returns {Piece | null | boolean} The piece that was taken, or false if the move was invalid.
 	 */
-	public moveIfValid(mov: Move): Piece | null | Boolean {
+	public moveIfValid(mov: Move): Piece | null | boolean {
 		if (this.isValidMove(mov)) {
 			return this.move(mov);
 		} else return false;
@@ -659,7 +660,7 @@ export class Game {
 	 * @param {boolean} [kingCheck=true] Whether or not to check if the king is in check.
 	 * @returns {boolean} Whether or not the move is valid.
 	 */
-	public isValidMove(mov: Move, kingCheck: Boolean = true): Boolean {
+	public isValidMove(mov: Move, kingCheck: boolean = true): boolean {
 		let moves = this.getMoves(mov.src, kingCheck);
 		return moves.some(a => a.src.equals(mov.src) && a.dst.equals(mov.dst));
 	}
@@ -671,7 +672,7 @@ export class Game {
 	 * @returns {Move[]} The valid moves for the specified team.
 	 * @see getMoves
 	 */
-	public getMovesForTeam(team: number, kingCheck: Boolean = true): Move[] {
+	public getMovesForTeam(team: number, kingCheck: boolean = true): Move[] {
 		let moves: Move[] = [];
 		this.forPiece((loc: Vec, piece: Piece | null) => {
 			if (piece && piece.team === team)
