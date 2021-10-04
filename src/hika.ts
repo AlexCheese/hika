@@ -177,13 +177,10 @@ export class Game {
 
 	/**
 	 * Initializes the movement patterns for each vanilla piece.
+	 * The data may be encoded in a different way in the future once I get custom piece data working properly.
 	 * @private
 	 */
 	private initPieceDict() {
-		// Construct piece dictionary
-		// The following standard data may be encoded
-		// in the future, when I get custom piece data
-		// working properly
 		const rook = {
 			pathTree: [
 				{
