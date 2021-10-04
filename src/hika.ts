@@ -143,7 +143,11 @@ export class Game {
 						{ direction: new Vec(1) },
 						{ direction: new Vec(-1) },
 						{ direction: new Vec(0, 1) },
-						{ direction: new Vec(0, -1) }
+						{ direction: new Vec(0, -1) },
+						{ direction: new Vec(0, 0, 1) },
+						{ direction: new Vec(0, 0, -1) },
+						{ direction: new Vec(0, 0, 0, 1) },
+						{ direction: new Vec(0, 0, 0, -1) }
 					]
 				}
 			]
@@ -158,7 +162,27 @@ export class Game {
 						{ direction: new Vec(1, 1) },
 						{ direction: new Vec(1, -1) },
 						{ direction: new Vec(-1, 1) },
-						{ direction: new Vec(-1, -1) }
+						{ direction: new Vec(-1, -1) },
+						{ direction: new Vec(1, 0, 1) },
+						{ direction: new Vec(1, 0, -1) },
+						{ direction: new Vec(-1, 0, 1) },
+						{ direction: new Vec(-1, 0, -1) },
+						{ direction: new Vec(1, 0, 0, 1) },
+						{ direction: new Vec(1, 0, 0, -1) },
+						{ direction: new Vec(-1, 0, 0, 1) },
+						{ direction: new Vec(-1, 0, 0, -1) },
+						{ direction: new Vec(0, 1, 1) },
+						{ direction: new Vec(0, 1, -1) },
+						{ direction: new Vec(0, -1, 1) },
+						{ direction: new Vec(0, -1, -1) },
+						{ direction: new Vec(0, 1, 0, 1) },
+						{ direction: new Vec(0, 1, 0, -1) },
+						{ direction: new Vec(0, -1, 0, 1) },
+						{ direction: new Vec(0, -1, 0, -1) },
+						{ direction: new Vec(0, 0, 1, 1) },
+						{ direction: new Vec(0, 0, 1, -1) },
+						{ direction: new Vec(0, 0, -1, 1) },
+						{ direction: new Vec(0, 0, -1, -1) }
 					]
 				}
 			]
@@ -185,7 +209,47 @@ export class Game {
 						{ direction: new Vec(2, -1) },
 						{ direction: new Vec(1, -2) },
 						{ direction: new Vec(-2, -1) },
-						{ direction: new Vec(-1, -2) }
+						{ direction: new Vec(-1, -2) },
+						{ direction: new Vec(2, 0, 1) },
+						{ direction: new Vec(1, 0, 2) },
+						{ direction: new Vec(-2, 0, 1) },
+						{ direction: new Vec(-1, 0, 2) },
+						{ direction: new Vec(2, 0, -1) },
+						{ direction: new Vec(1, 0, -2) },
+						{ direction: new Vec(-2, 0, -1) },
+						{ direction: new Vec(-1, 0, -2) },
+						{ direction: new Vec(2, 0, 0, 1) },
+						{ direction: new Vec(1, 0, 0, 2) },
+						{ direction: new Vec(-2, 0, 0, 1) },
+						{ direction: new Vec(-1, 0, 0, 2) },
+						{ direction: new Vec(2, 0, 0, -1) },
+						{ direction: new Vec(1, 0, 0, -2) },
+						{ direction: new Vec(-2, 0, 0, -1) },
+						{ direction: new Vec(-1, 0, 0, -2) },
+						{ direction: new Vec(0, 2, 1) },
+						{ direction: new Vec(0, 1, 2) },
+						{ direction: new Vec(0, -2, 1) },
+						{ direction: new Vec(0, -1, 2) },
+						{ direction: new Vec(0, 2, -1) },
+						{ direction: new Vec(0, 1, -2) },
+						{ direction: new Vec(0, -2, -1) },
+						{ direction: new Vec(0, -1, -2) },
+						{ direction: new Vec(0, 2, 0, 1) },
+						{ direction: new Vec(0, 1, 0, 2) },
+						{ direction: new Vec(0, -2, 0, 1) },
+						{ direction: new Vec(0, -1, 0, 2) },
+						{ direction: new Vec(0, 2, 0, -1) },
+						{ direction: new Vec(0, 1, 0, -2) },
+						{ direction: new Vec(0, -2, 0, -1) },
+						{ direction: new Vec(0, -1, 0, -2) },
+						{ direction: new Vec(0, 0, 2, 1) },
+						{ direction: new Vec(0, 0, 1, 2) },
+						{ direction: new Vec(0, 0, -2, 1) },
+						{ direction: new Vec(0, 0, -1, 2) },
+						{ direction: new Vec(0, 0, 2, -1) },
+						{ direction: new Vec(0, 0, 1, -2) },
+						{ direction: new Vec(0, 0, -2, -1) },
+						{ direction: new Vec(0, 0, -1, -2) }
 					]
 				}
 			]
