@@ -329,7 +329,7 @@ export class Game {
 		return this.pois;
 	}
 
-	public isInBounds(pos: Vec): Boolean {
+	public isInBounds(pos: Vec): boolean {
 		if (pos.x >= 0 && pos.x < this.size.x
 			&& pos.y >= 0 && pos.y < this.size.y
 			&& pos.z >= 0 && pos.z < this.size.z
@@ -393,7 +393,7 @@ export class Game {
 		return target;
 	}
 
-	public getMoves(pos: Vec, kingCheck: Boolean = true): Move[] {
+	public getMoves(pos: Vec, kingCheck: boolean = true): Move[] {
 		let moves: Move[] = [];
 		let piece = this.getPiece(pos);
 		if (piece === null) return [];
@@ -530,7 +530,7 @@ export class Game {
 		}
 	}
 
-	public putsKingInCheck(mov: Move, team: number): Boolean {
+	public putsKingInCheck(mov: Move, team: number): boolean {
 		let piece: Piece | null = this.getPiece(mov.src);
 		if (piece == null) return false;
 		let layoutClone = JSON.parse(JSON.stringify(this.layout));
@@ -550,18 +550,18 @@ export class Game {
 		return false;
 	}
 
-	public moveIfValid(mov: Move): Piece | null | Boolean {
+	public moveIfValid(mov: Move): Piece | null | boolean {
 		if (this.isValidMove(mov)) {
 			return this.move(mov);
 		} else return false;
 	}
 
-	public isValidMove(mov: Move, kingCheck: Boolean = true): Boolean {
+	public isValidMove(mov: Move, kingCheck: boolean = true): boolean {
 		let moves = this.getMoves(mov.src, kingCheck);
 		return moves.some(a => a.src.equals(mov.src) && a.dst.equals(mov.dst));
 	}
 
-	public getMovesForTeam(team: number, kingCheck: Boolean = true): Move[] {
+	public getMovesForTeam(team: number, kingCheck: boolean = true): Move[] {
 		let moves: Move[] = [];
 		this.forPiece((loc: Vec, piece: Piece | null) => {
 			if (piece && piece.team === team)
