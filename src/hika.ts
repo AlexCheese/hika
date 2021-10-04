@@ -51,10 +51,24 @@ type PieceRule = {
 	pathTree: Path[];
 };
 
-export type Move = {
+export class Move {
 	src: Vec;
 	dst: Vec;
 	int?: Vec[];
+	constructor(src: Vec, dst: Vec, int?: Vec[]) {
+		this.src = src;
+		this.dst = dst;
+		this.int = int;
+	}
+	equals(move: Move): Boolean {
+		if (this.src.equals(move.src) && this.dst.equals(move.dst)) return true;
+		else return false;
+	}
+}
+
+export type PieceVec ={
+	piece: Piece;
+	pos: Vec;
 }
 
 export type Space = Piece | null;
@@ -62,6 +76,7 @@ export type Space = Piece | null;
 export class Game {
 	private readonly size: Vec;
 	private layout: (Space)[][][][] = [];
+	private pois: PieceVec[] = [];
 	private pieceDict: { [id: string]: PieceRule } = {};
 
 	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
@@ -101,6 +116,7 @@ export class Game {
 								team: pid == pid.toUpperCase() ? 0 : 1,
 								flags: []
 							};
+							this.pois.push({piece: piece, pos: new Vec(x, y, z, w)});
 							switch (pid.toUpperCase()) {
 								case "P":
 									piece.flags = [0];
@@ -136,7 +152,11 @@ export class Game {
 						{ direction: new Vec(1) },
 						{ direction: new Vec(-1) },
 						{ direction: new Vec(0, 1) },
-						{ direction: new Vec(0, -1) }
+						{ direction: new Vec(0, -1) },
+						{ direction: new Vec(0, 0, 1) },
+						{ direction: new Vec(0, 0, -1) },
+						{ direction: new Vec(0, 0, 0, 1) },
+						{ direction: new Vec(0, 0, 0, -1) }
 					]
 				}
 			]
@@ -151,7 +171,27 @@ export class Game {
 						{ direction: new Vec(1, 1) },
 						{ direction: new Vec(1, -1) },
 						{ direction: new Vec(-1, 1) },
-						{ direction: new Vec(-1, -1) }
+						{ direction: new Vec(-1, -1) },
+						{ direction: new Vec(1, 0, 1) },
+						{ direction: new Vec(1, 0, -1) },
+						{ direction: new Vec(-1, 0, 1) },
+						{ direction: new Vec(-1, 0, -1) },
+						{ direction: new Vec(1, 0, 0, 1) },
+						{ direction: new Vec(1, 0, 0, -1) },
+						{ direction: new Vec(-1, 0, 0, 1) },
+						{ direction: new Vec(-1, 0, 0, -1) },
+						{ direction: new Vec(0, 1, 1) },
+						{ direction: new Vec(0, 1, -1) },
+						{ direction: new Vec(0, -1, 1) },
+						{ direction: new Vec(0, -1, -1) },
+						{ direction: new Vec(0, 1, 0, 1) },
+						{ direction: new Vec(0, 1, 0, -1) },
+						{ direction: new Vec(0, -1, 0, 1) },
+						{ direction: new Vec(0, -1, 0, -1) },
+						{ direction: new Vec(0, 0, 1, 1) },
+						{ direction: new Vec(0, 0, 1, -1) },
+						{ direction: new Vec(0, 0, -1, 1) },
+						{ direction: new Vec(0, 0, -1, -1) }
 					]
 				}
 			]
@@ -178,7 +218,47 @@ export class Game {
 						{ direction: new Vec(2, -1) },
 						{ direction: new Vec(1, -2) },
 						{ direction: new Vec(-2, -1) },
-						{ direction: new Vec(-1, -2) }
+						{ direction: new Vec(-1, -2) },
+						{ direction: new Vec(2, 0, 1) },
+						{ direction: new Vec(1, 0, 2) },
+						{ direction: new Vec(-2, 0, 1) },
+						{ direction: new Vec(-1, 0, 2) },
+						{ direction: new Vec(2, 0, -1) },
+						{ direction: new Vec(1, 0, -2) },
+						{ direction: new Vec(-2, 0, -1) },
+						{ direction: new Vec(-1, 0, -2) },
+						{ direction: new Vec(2, 0, 0, 1) },
+						{ direction: new Vec(1, 0, 0, 2) },
+						{ direction: new Vec(-2, 0, 0, 1) },
+						{ direction: new Vec(-1, 0, 0, 2) },
+						{ direction: new Vec(2, 0, 0, -1) },
+						{ direction: new Vec(1, 0, 0, -2) },
+						{ direction: new Vec(-2, 0, 0, -1) },
+						{ direction: new Vec(-1, 0, 0, -2) },
+						{ direction: new Vec(0, 2, 1) },
+						{ direction: new Vec(0, 1, 2) },
+						{ direction: new Vec(0, -2, 1) },
+						{ direction: new Vec(0, -1, 2) },
+						{ direction: new Vec(0, 2, -1) },
+						{ direction: new Vec(0, 1, -2) },
+						{ direction: new Vec(0, -2, -1) },
+						{ direction: new Vec(0, -1, -2) },
+						{ direction: new Vec(0, 2, 0, 1) },
+						{ direction: new Vec(0, 1, 0, 2) },
+						{ direction: new Vec(0, -2, 0, 1) },
+						{ direction: new Vec(0, -1, 0, 2) },
+						{ direction: new Vec(0, 2, 0, -1) },
+						{ direction: new Vec(0, 1, 0, -2) },
+						{ direction: new Vec(0, -2, 0, -1) },
+						{ direction: new Vec(0, -1, 0, -2) },
+						{ direction: new Vec(0, 0, 2, 1) },
+						{ direction: new Vec(0, 0, 1, 2) },
+						{ direction: new Vec(0, 0, -2, 1) },
+						{ direction: new Vec(0, 0, -1, 2) },
+						{ direction: new Vec(0, 0, 2, -1) },
+						{ direction: new Vec(0, 0, 1, -2) },
+						{ direction: new Vec(0, 0, -2, -1) },
+						{ direction: new Vec(0, 0, -1, -2) }
 					]
 				}
 			]
@@ -247,6 +327,10 @@ export class Game {
 		return new Vec(this.size.x, this.size.y, this.size.z, this.size.w);
 	}
 
+	public getPois(): PieceVec[] {
+		return this.pois;
+	}
+
 	public isInBounds(pos: Vec): Boolean {
 		if (pos.x >= 0 && pos.x < this.size.x
 			&& pos.y >= 0 && pos.y < this.size.y
@@ -272,9 +356,42 @@ export class Game {
 		return target;
 	}
 
+	private setPiecePoi(pos: Vec, piece: Space = null): Space {
+		let target: Space = null;
+		for (let i of this.pois) {
+			if (i.pos.equals(pos)) {
+				target = i.piece;
+				this.pois.splice(this.pois.indexOf(i), 1);
+			}
+		}
+		if (piece !== null) this.pois.push({pos:pos, piece:piece});
+		return target;
+	}
+
+	public setPiece(pos: Vec, piece: Space = null): Space {
+		let target = this.setPieceLayout(pos, piece);
+		this.setPiecePoi(pos, piece);
+		return target;
+	}
+
+	private removePoi(pos: Vec): Space {
+		let target: Space = null;
+		for (let i of this.pois) {
+			if (i.pos.equals(pos)) {
+				target = i.piece;
+				this.pois.splice(this.pois.indexOf(i), 1);
+			}
+		}
+		return target;
+	}
+
 	public move(mov: Move): Space {
-		let piece = this.setPiece(mov.src, null);
-		let target = this.setPiece(mov.dst, piece);
+		let piece = this.setPieceLayout(mov.src, null);
+		let target = this.setPieceLayout(mov.dst, piece);
+		// hacky workaround
+		if (piece && piece.flags.includes(0)) piece.flags = [];
+		this.setPiecePoi(mov.dst, piece);
+		this.removePoi(mov.src);
 		return target;
 	}
 
@@ -293,11 +410,13 @@ export class Game {
 		}
 
 		if (kingCheck) {
-			for (let [ind, mov] of moves.entries()) {
-				if (this.putsKingInCheck(mov)) {
-					moves.splice(ind, 1);
+			let checkedMoves = [];
+			for (let i = 0; i < moves.length; i++) {
+				if (!this.putsKingInCheck(moves[i], piece.team)) {
+					checkedMoves.push(moves[i]);
 				}
 			}
+			return checkedMoves;
 		}
 
 		return moves;
@@ -370,13 +489,13 @@ export class Game {
 					break;
 				}
 				if (view === null) {
-					moves.push({ src: pos, dst: loc });
+					moves.push(new Move(pos, loc));
 					continue;
 				}
 				if (view.team == piece.team) break;
 				if (atkCount == stats.attack) break;
 				atkCount++;
-				moves.push({ src: pos, dst: loc });
+				moves.push(new Move(pos, loc));
 				if (atkCount == stats.attack) break;
 			}
 		} else if (path.branches) {
@@ -400,7 +519,7 @@ export class Game {
 		return moves;
 	}
 
-	public forPiece(fn: Function) {
+	public forPiece(fn: (loc: Vec, piece: Space) => void): void {
 		for (let w = 0; w < this.size.w && w < this.layout.length; w++) {
 			for (let z = 0; z < this.size.z && this.layout[w].length; z++) {
 				for (let y = 0; y < this.size.y && this.layout[w][z].length; y++) {
@@ -413,7 +532,8 @@ export class Game {
 		}
 	}
 
-	public putsKingInCheck(mov: Move): Boolean {
+
+	public putsKingInCheck(mov: Move, team: number): Boolean {
 		let piece: Space = this.getPiece(mov.src);
 		if (piece == null) return false;
 		let layoutClone = JSON.parse(JSON.stringify(this.layout));
@@ -423,10 +543,12 @@ export class Game {
 			if (target && piece && target.id === 'K' && target.team !== piece.team)
 				kings.push(loc);
 		});
-		let moves = this.getMovesForTeam(piece.team ? 0 : 1, false);
+		let moves = this.getMovesForTeam(team ? 0 : 1, false);
 		this.layout = layoutClone;
 		for (let m of moves) {
-			if (kings.includes(m.dst)) return true;
+			for (let k of kings) {
+				if (k.equals(m.dst)) return true;
+			}
 		}
 		return false;
 	}
@@ -438,7 +560,7 @@ export class Game {
 	}
 
 	public isValidMove(mov: Move, kingCheck: Boolean = true): Boolean {
-		let moves = this.getMoves(mov.src);
+		let moves = this.getMoves(mov.src, kingCheck);
 		return moves.some(a => a.src.equals(mov.src) && a.dst.equals(mov.dst));
 	}
 
