@@ -37,7 +37,7 @@ export class Vec {
 	 * @param {Vec} v - The vector to compare to.
 	 * @returns {boolean} True if the vectors are equal, false otherwise.
 	 */
-	equals(v: Vec): Boolean {
+	equals(v: Vec): boolean {
 		if (this.x === v.x && this.y === v.y && this.z === v.z && this.w === v.w)
 			return true;
 		else return false;
@@ -94,7 +94,7 @@ export class Move {
 		this.dst = dst;
 		this.int = int;
 	}
-	equals(move: Move): Boolean {
+	equals(move: Move): boolean {
 		if (this.src.equals(move.src) && this.dst.equals(move.dst)) return true;
 		else return false;
 	}
