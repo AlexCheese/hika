@@ -50,6 +50,26 @@ export class Vec {
 	scale(s: number): Vec {
 		return new Vec(this.x * s, this.y * s, this.z * s, this.w * s);
 	}
+
+	/** Serializes the Vec into a string
+	 * @param {Vec} vec
+	 * @returns {string}
+	 * @see deserialize
+	 */
+	static serialize(vec: Vec): string {
+		return `${vec.x},${vec.y},${vec.z},${vec.w}`;
+	}
+
+	/** Deserializes a string into a Vec
+	 * @param {string} str
+	 * @returns {Vec}
+	 * @see serialize
+	 */
+	static deserialize(str: string): Vec {
+		let [x, y, z, w] = str.split(',').map(Number);
+		return new Vec(x, y, z, w);
+	}
+
 }
 
 export type Piece = {
@@ -97,6 +117,29 @@ export class Move {
 	equals(move: Move): boolean {
 		if (this.src.equals(move.src) && this.dst.equals(move.dst)) return true;
 		else return false;
+	}
+	/**
+	 * Serializes the move into a string
+	 * @param {Move} mov
+	 * @returns {string}
+	 * @see deserialize 
+	 */
+	static serialize(mov: Move): string {
+		let int = "";
+		if (mov.int != null) 
+			int = `/${mov.int.map(Vec.serialize).join('/')}`;
+		return `${Vec.serialize(mov.src)}/${Vec.serialize(mov.dst)}${int}`;
+	}
+	/**
+	 * Deserializes a move from a string.
+	 * @param {string} str
+	 * @returns {Move}
+	 * @see serialize
+	 */
+	static deserialize(str: string): Move {
+		let arr = str.split('/');
+		if (arr.length === 2) return new Move(Vec.deserialize(arr[0]), Vec.deserialize(arr[1]));
+		else return new Move(Vec.deserialize(arr[0]), Vec.deserialize(arr[1]), arr.slice(2).map(Vec.deserialize));
 	}
 }
 
