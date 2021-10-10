@@ -352,6 +352,7 @@ export class Game {
 					condition: [{ team: 0 }],
 					branches: [
 						{ direction: new Vec(0, 1), attack: 0 },
+                                                { direction: new Vec(0, 0, 0, 1), attack: 0 },
 						{ direction: new Vec(1, 1), attack: 1, condition: [{ enemy: new Vec() }] },
 						{ direction: new Vec(-1, 1), attack: 1, condition: [{ enemy: new Vec() }] },
 						{ direction: new Vec(0, 2), attack: 0, condition: [{ flag: 0 }, { inverted: true, piece: new Vec(0, -1) }] },
@@ -364,6 +365,7 @@ export class Game {
 					condition: [{ team: 1 }],
 					branches: [
 						{ direction: new Vec(0, -1), attack: 0 },
+                                                { direction: new Vec(0, 0, 0, -1), attack: 0 },
 						{ direction: new Vec(1, -1), attack: 1, condition: [{ enemy: new Vec() }] },
 						{ direction: new Vec(-1, -1), attack: 1, condition: [{ enemy: new Vec() }] },
 						{ direction: new Vec(0, -2), attack: 0, condition: [{ flag: 0 }, { inverted: true, piece: new Vec(0, 1) }] },
@@ -381,14 +383,14 @@ export class Game {
 					attack: 1,
 					branches: [
 						"Q",
-						{
+						/*{
 							direction: new Vec(2),
 							condition: [{ flag: 1 }]
 						},
 						{
 							direction: new Vec(-2),
 							condition: [{ flag: 2 }]
-						}
+						}*/
 					]
 				}
 			]
