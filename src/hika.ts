@@ -550,45 +550,39 @@ export class Game {
 		if (path.condition) {
 			for (let con of path.condition) {
 				let result = true;
-				if (con.team != null && piece.team != con.team) {
+				if (result && con.team != null && piece.team != con.team) {
 					result = false;
 				}
-				if (con.flag != null && !piece.flags?.includes(con.flag)) {
+				if (result && con.flag != null && !piece.flags?.includes(con.flag)) {
 					result = false;
 				}
-				if (con.piece != null) {
+				if (result && con.piece != null) {
 					let loc = new Vec(
 						pos.x + con.piece.x + (path.direction?.x || 0),
 						pos.y + con.piece.y + (path.direction?.y || 0),
 						pos.z + con.piece.z + (path.direction?.z || 0),
 						pos.w + con.piece.w + (path.direction?.w || 0)
 					);
-					try {
-						if (!this.getPiece(loc)) {
-							result = false;
-						}
-					} catch {
-						result = false;
-					}
+					if (!this.isInBounds(loc) || !this.getPiece(loc)) result = false;
 				}
-				if (con.enemy != null) {
+				if (result && con.enemy != null) {
 					let loc = new Vec(
 						pos.x + con.enemy.x + (path.direction?.x || 0),
 						pos.y + con.enemy.y + (path.direction?.y || 0),
 						pos.z + con.enemy.z + (path.direction?.z || 0),
 						pos.w + con.enemy.w + (path.direction?.w || 0)
 					);
-					try {
+					if (this.isInBounds(loc)) {
 						let view = this.getPiece(loc);
 						if (!view || view.team == piece.team) {
 							result = false;
 						}
-					} catch {
+					} else {
 						result = false;
 					}
 				}
 				if (con.inverted) {
-					result = result ? false : true;
+					result = !result;
 				}
 				if (!result) {
 					return [];
@@ -605,18 +599,13 @@ export class Game {
 			if (stats.repeat == null || stats.attack == null) return [];
 			for (let count = 0; count < stats.repeat; count++) {
 				loc = loc.add(path.direction);
-				let view;
-				try {
-					view = this.getPiece(loc);
-				} catch {
-					break;
-				}
+				if (!this.isInBounds(loc)) break;
+				let view = this.getPiece(loc);
 				if (view === null) {
 					moves.push(new Move(pos, loc));
 					continue;
 				}
 				if (view.team == piece.team) break;
-				if (atkCount == stats.attack) break;
 				atkCount++;
 				moves.push(new Move(pos, loc));
 				if (atkCount == stats.attack) break;
@@ -667,16 +656,12 @@ export class Game {
 	 */
 	public putsKingInCheck(mov: Move, team: number): boolean {
 		let piece: Piece | null = this.getPiece(mov.src);
-		if (piece == null) return false;
-		let layoutClone = JSON.parse(JSON.stringify(this.layout));
-		let taken = this.move(mov);
+		if (piece === null) return false;
 		let kings: Vec[] = [];
-		this.forPiece((loc: Vec, target: Piece | null) => {
-			if (target && piece && target.id === 'K' && target.team == team)
-				kings.push(loc);
-		});
+		for (let poi of this.getPois()) {
+			if (poi.piece.id === "K" && poi.piece.team === team) kings.push(poi.pos)
+		}
 		let moves = this.getMovesForTeam(team ? 0 : 1, false);
-		this.layout = layoutClone;
 		for (let m of moves) {
 			for (let k of kings) {
 				if (k.equals(m.dst)) return true;
