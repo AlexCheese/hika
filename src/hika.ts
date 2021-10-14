@@ -196,7 +196,6 @@ export class Game {
 								team: pid == pid.toUpperCase() ? 0 : 1,
 								flags: []
 							};
-							this.pois.push({piece: piece, pos: new Vec(x, y, z, w)});
 							switch (pid.toUpperCase()) {
 								case "P":
 									piece.flags = [0];
@@ -214,6 +213,15 @@ export class Game {
 			}
 			this.layout.push(wLayer);
 		}
+
+		this.forPiece((loc, piece) => {
+			if (piece) {
+				this.pois.push({
+					piece: piece,
+					pos: loc
+				});
+			}
+		});
 
 		this.initPieceDict();
 	} // haha love this constructor
@@ -461,10 +469,10 @@ export class Game {
 
 	private setPiecePoi(pos: Vec, piece: Piece | null = null): Piece | null {
 		let target: Piece | null = null;
-		for (let i of this.pois) {
-			if (i.pos.equals(pos)) {
-				target = i.piece;
-				this.pois.splice(this.pois.indexOf(i), 1);
+		for (let i = 0; i < this.pois.length; i++) {
+			if (this.pois[i].pos.equals(pos)) {
+				target = this.pois[i].piece;
+				this.pois.splice(i, 1);
 			}
 		}
 		if (piece !== null) this.pois.push({pos:pos, piece:piece});
@@ -480,16 +488,17 @@ export class Game {
 	 */
 	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
 		let target = this.setPieceLayout(pos, piece);
-		this.setPiecePoi(pos, piece);
+		if (piece !== null) this.removePoi(pos);
+		else this.setPiecePoi(pos, piece);
 		return target;
 	}
 
 	private removePoi(pos: Vec): Piece | null {
 		let target: Piece | null = null;
-		for (let i of this.pois) {
-			if (i.pos.equals(pos)) {
-				target = i.piece;
-				this.pois.splice(this.pois.indexOf(i), 1);
+		for (let i = 0; i < this.pois.length; i++) {
+			if (this.pois[i].pos.equals(pos)) {
+				target = this.pois[i].piece;
+				this.pois.splice(i, 1);
 			}
 		}
 		return target;
@@ -657,11 +666,16 @@ export class Game {
 	public putsKingInCheck(mov: Move, team: number): boolean {
 		let piece: Piece | null = this.getPiece(mov.src);
 		if (piece === null) return false;
+		let layoutClone = JSON.parse(JSON.stringify(this.layout));
+		let poisClone = this.getPois().slice(0);
+		this.move(mov);
 		let kings: Vec[] = [];
 		for (let poi of this.getPois()) {
 			if (poi.piece.id === "K" && poi.piece.team === team) kings.push(poi.pos)
 		}
 		let moves = this.getMovesForTeam(team ? 0 : 1, false);
+		this.layout = layoutClone;
+		this.pois = poisClone;
 		for (let m of moves) {
 			for (let k of kings) {
 				if (k.equals(m.dst)) return true;
