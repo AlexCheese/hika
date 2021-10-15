@@ -70,6 +70,22 @@ export class Vec {
 		return new Vec(x, y, z, w);
 	}
 
+	/**
+	 * Converts the Vec into a human-readable string.
+	 * @returns {string} A string representation of the Vec.
+	 * @example
+	 * new Vec(1, 2, 3, 4).toString() // returns "b3d5"
+	 */
+	toString(): string {
+		function toLetters(n: number): string {
+			let mod = n % 26;
+			let pow = (n - mod) / 26;
+			let out = String.fromCharCode(97 + mod);
+			if (pow > 0) out = toLetters(pow - 1) + out;
+			return out;
+		}
+		return toLetters(this.x) + (this.y+1) + toLetters(this.z) + (this.w+1);
+	}
 }
 
 export type Piece = {
