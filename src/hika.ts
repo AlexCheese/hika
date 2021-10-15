@@ -715,10 +715,11 @@ export class Game {
 	 */
 	public getMovesForTeam(team: number, kingCheck: boolean = true): Move[] {
 		let moves: Move[] = [];
-		this.forPiece((loc: Vec, piece: Piece | null) => {
-			if (piece && piece.team === team)
-				moves = moves.concat(this.getMoves(loc, kingCheck));
-		});
+		for (let poi of this.getPois()) {
+			if (poi.piece.team === team) {
+				moves = moves.concat(this.getMoves(poi.pos, kingCheck));
+			}
+		}
 		return moves;
 	}
 }
