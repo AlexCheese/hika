@@ -427,7 +427,7 @@ export class Game {
 	 * @returns {PieceVec[]}
 	 */
 	public getPois(): PieceVec[] {
-		return this.pois;
+		return this.pois.slice();
 	}
 
 	/**
