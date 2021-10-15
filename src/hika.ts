@@ -196,7 +196,6 @@ export class Game {
 								team: pid == pid.toUpperCase() ? 0 : 1,
 								flags: []
 							};
-							this.pois.push({piece: piece, pos: new Vec(x, y, z, w)});
 							switch (pid.toUpperCase()) {
 								case "P":
 									piece.flags = [0];
@@ -214,6 +213,15 @@ export class Game {
 			}
 			this.layout.push(wLayer);
 		}
+
+		this.forPiece((loc, piece) => {
+			if (piece) {
+				this.pois.push({
+					piece: piece,
+					pos: loc
+				});
+			}
+		});
 
 		this.initPieceDict();
 	} // haha love this constructor
@@ -419,7 +427,7 @@ export class Game {
 	 * @returns {PieceVec[]}
 	 */
 	public getPois(): PieceVec[] {
-		return this.pois;
+		return this.pois.slice();
 	}
 
 	/**
@@ -461,10 +469,10 @@ export class Game {
 
 	private setPiecePoi(pos: Vec, piece: Piece | null = null): Piece | null {
 		let target: Piece | null = null;
-		for (let i of this.pois) {
-			if (i.pos.equals(pos)) {
-				target = i.piece;
-				this.pois.splice(this.pois.indexOf(i), 1);
+		for (let i = 0; i < this.pois.length; i++) {
+			if (this.pois[i].pos.equals(pos)) {
+				target = this.pois[i].piece;
+				this.pois.splice(i, 1);
 			}
 		}
 		if (piece !== null) this.pois.push({pos:pos, piece:piece});
@@ -480,16 +488,17 @@ export class Game {
 	 */
 	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
 		let target = this.setPieceLayout(pos, piece);
-		this.setPiecePoi(pos, piece);
+		if (piece !== null) this.removePoi(pos);
+		else this.setPiecePoi(pos, piece);
 		return target;
 	}
 
 	private removePoi(pos: Vec): Piece | null {
 		let target: Piece | null = null;
-		for (let i of this.pois) {
-			if (i.pos.equals(pos)) {
-				target = i.piece;
-				this.pois.splice(this.pois.indexOf(i), 1);
+		for (let i = 0; i < this.pois.length; i++) {
+			if (this.pois[i].pos.equals(pos)) {
+				target = this.pois[i].piece;
+				this.pois.splice(i, 1);
 			}
 		}
 		return target;
@@ -550,45 +559,39 @@ export class Game {
 		if (path.condition) {
 			for (let con of path.condition) {
 				let result = true;
-				if (con.team != null && piece.team != con.team) {
+				if (result && con.team != null && piece.team != con.team) {
 					result = false;
 				}
-				if (con.flag != null && !piece.flags?.includes(con.flag)) {
+				if (result && con.flag != null && !piece.flags?.includes(con.flag)) {
 					result = false;
 				}
-				if (con.piece != null) {
+				if (result && con.piece != null) {
 					let loc = new Vec(
 						pos.x + con.piece.x + (path.direction?.x || 0),
 						pos.y + con.piece.y + (path.direction?.y || 0),
 						pos.z + con.piece.z + (path.direction?.z || 0),
 						pos.w + con.piece.w + (path.direction?.w || 0)
 					);
-					try {
-						if (!this.getPiece(loc)) {
-							result = false;
-						}
-					} catch {
-						result = false;
-					}
+					if (!this.isInBounds(loc) || !this.getPiece(loc)) result = false;
 				}
-				if (con.enemy != null) {
+				if (result && con.enemy != null) {
 					let loc = new Vec(
 						pos.x + con.enemy.x + (path.direction?.x || 0),
 						pos.y + con.enemy.y + (path.direction?.y || 0),
 						pos.z + con.enemy.z + (path.direction?.z || 0),
 						pos.w + con.enemy.w + (path.direction?.w || 0)
 					);
-					try {
+					if (this.isInBounds(loc)) {
 						let view = this.getPiece(loc);
 						if (!view || view.team == piece.team) {
 							result = false;
 						}
-					} catch {
+					} else {
 						result = false;
 					}
 				}
 				if (con.inverted) {
-					result = result ? false : true;
+					result = !result;
 				}
 				if (!result) {
 					return [];
@@ -605,18 +608,13 @@ export class Game {
 			if (stats.repeat == null || stats.attack == null) return [];
 			for (let count = 0; count < stats.repeat; count++) {
 				loc = loc.add(path.direction);
-				let view;
-				try {
-					view = this.getPiece(loc);
-				} catch {
-					break;
-				}
+				if (!this.isInBounds(loc)) break;
+				let view = this.getPiece(loc);
 				if (view === null) {
 					moves.push(new Move(pos, loc));
 					continue;
 				}
 				if (view.team == piece.team) break;
-				if (atkCount == stats.attack) break;
 				atkCount++;
 				moves.push(new Move(pos, loc));
 				if (atkCount == stats.attack) break;
@@ -667,16 +665,17 @@ export class Game {
 	 */
 	public putsKingInCheck(mov: Move, team: number): boolean {
 		let piece: Piece | null = this.getPiece(mov.src);
-		if (piece == null) return false;
+		if (piece === null) return false;
 		let layoutClone = JSON.parse(JSON.stringify(this.layout));
-		let taken = this.move(mov);
+		let poisClone = this.getPois().slice(0);
+		this.move(mov);
 		let kings: Vec[] = [];
-		this.forPiece((loc: Vec, target: Piece | null) => {
-			if (target && piece && target.id === 'K' && target.team == team)
-				kings.push(loc);
-		});
+		for (let poi of this.getPois()) {
+			if (poi.piece.id === "K" && poi.piece.team === team) kings.push(poi.pos)
+		}
 		let moves = this.getMovesForTeam(team ? 0 : 1, false);
 		this.layout = layoutClone;
+		this.pois = poisClone;
 		for (let m of moves) {
 			for (let k of kings) {
 				if (k.equals(m.dst)) return true;
@@ -716,10 +715,11 @@ export class Game {
 	 */
 	public getMovesForTeam(team: number, kingCheck: boolean = true): Move[] {
 		let moves: Move[] = [];
-		this.forPiece((loc: Vec, piece: Piece | null) => {
-			if (piece && piece.team === team)
-				moves = moves.concat(this.getMoves(loc, kingCheck));
-		});
+		for (let poi of this.getPois()) {
+			if (poi.piece.team === team) {
+				moves = moves.concat(this.getMoves(poi.pos, kingCheck));
+			}
+		}
 		return moves;
 	}
 }
