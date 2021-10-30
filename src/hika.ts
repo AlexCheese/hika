@@ -174,6 +174,8 @@ export class Game {
 	private layout: (Piece | null)[][][][] = [];
 	private pois: PieceVec[] = [];
 	private pieceDict: { [id: string]: PieceRule } = {};
+	private cache: Map<Vec, Move[]> = new Map<Vec, Move[]>();
+	private noKingCheckCache: Map<Vec, Move[]> = new Map<Vec, Move[]>();
 
 	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
 		// Input string contains board size, state, and piece behavior
@@ -503,6 +505,7 @@ export class Game {
 	 * @throws {Error} if the position is not on the board.
 	 */
 	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
+		this.clearCache();
 		let target = this.setPieceLayout(pos, piece);
 		if (piece !== null) this.removePoi(pos);
 		else this.setPiecePoi(pos, piece);
@@ -528,6 +531,7 @@ export class Game {
 	 * @throws {Error} if the target position is not on the board.
 	 */
 	public move(mov: Move): Piece | null {
+		this.clearCache();
 		let piece = this.setPieceLayout(mov.src, null);
 		let target = this.setPieceLayout(mov.dst, piece);
 		// hacky workaround
@@ -549,6 +553,9 @@ export class Game {
 		if (piece === null) return [];
 		let data = this.pieceDict[piece.id];
 
+		if (kingCheck && this.cache.has(pos)) return this.cache.get(pos) as Move[];
+		if (!kingCheck && this.noKingCheckCache.has(pos)) return this.noKingCheckCache.get(pos) as Move[];
+
 		for (let path of data.pathTree) {
 			let stats = {
 				repeat: null,
@@ -564,9 +571,11 @@ export class Game {
 					checkedMoves.push(moves[i]);
 				}
 			}
+			this.cache.set(pos, checkedMoves);
 			return checkedMoves;
 		}
 
+		this.noKingCheckCache.set(pos, moves);
 		return moves;
 	}
 
@@ -654,6 +663,14 @@ export class Game {
 		}
 
 		return moves;
+	}
+
+	/**
+	 * Clears the cache of possible moves.
+	 * @private
+	 */
+	private clearCache() {
+		this.cache.clear();
 	}
 
 	/**
