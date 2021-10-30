@@ -666,11 +666,12 @@ export class Game {
 	}
 
 	/**
-	 * Clears the cache of possible moves.
+	 * Clears the caches of possible moves.
 	 * @private
 	 */
 	private clearCache() {
 		this.cache.clear();
+		this.noKingCheckCache.clear();
 	}
 
 	/**
