@@ -553,7 +553,6 @@ export class Game {
 		let data = this.pieceDict[piece.id];
 
 		if (kingCheck && this.cache.has(Vec.serialize(pos))) {
-			console.count("CACHE HIT");
 			return this.cache.get(Vec.serialize(pos)) as Move[]
 		};
 
