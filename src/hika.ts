@@ -174,8 +174,8 @@ export class Game {
 	private layout: (Piece | null)[][][][] = [];
 	private pois: PieceVec[] = [];
 	private pieceDict: { [id: string]: PieceRule } = {};
-	private cache: Map<Vec, Move[]> = new Map<Vec, Move[]>();
-	private noKingCheckCache: Map<Vec, Move[]> = new Map<Vec, Move[]>();
+	private cache: Map<string, Move[]> = new Map<string, Move[]>();
+	private noKingCheckCache: Map<string, Move[]> = new Map<string, Move[]>();
 
 	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
 		// Input string contains board size, state, and piece behavior
@@ -553,8 +553,8 @@ export class Game {
 		if (piece === null) return [];
 		let data = this.pieceDict[piece.id];
 
-		if (kingCheck && this.cache.has(pos)) return this.cache.get(pos) as Move[];
-		if (!kingCheck && this.noKingCheckCache.has(pos)) return this.noKingCheckCache.get(pos) as Move[];
+		if (kingCheck && this.cache.has(Vec.serialize(pos))) return this.cache.get(Vec.serialize(pos)) as Move[];
+		if (!kingCheck && this.noKingCheckCache.has(Vec.serialize(pos))) return this.noKingCheckCache.get(Vec.serialize(pos)) as Move[];
 
 		for (let path of data.pathTree) {
 			let stats = {
@@ -571,11 +571,11 @@ export class Game {
 					checkedMoves.push(moves[i]);
 				}
 			}
-			this.cache.set(pos, checkedMoves);
+			this.cache.set(Vec.serialize(pos), checkedMoves);
 			return checkedMoves;
 		}
 
-		this.noKingCheckCache.set(pos, moves);
+		this.noKingCheckCache.set(Vec.serialize(pos), moves);
 		return moves;
 	}
 
