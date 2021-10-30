@@ -1,13 +1,13 @@
 const { Game, Move, Vec } = require("../dist/hika");
 
-let game1 = new Game("8,8,1,1 5rk1,1N3ppp,8,2q5,1B6,4RP2,4Q1PP,5RK1");
+let game1 = new Game("8,8,1,1 5RK1,4Q1PP,4RP2,1B6,2q5,8,1N3ppp,5rk1");
 
-test("game1: number of white moves is 31", () => {
-	expect(game1.getMovesForTeam(0).length).toBe(31);
+test("game1: number of white moves is 35", () => {
+	expect(game1.getMovesForTeam(0).length).toBe(35);
 })
 
 test("game1: number of black moves is 28", () => {
-	expect(game1.getMovesForTeam(1).length).toBe(28);
+	expect(game1.getMovesForTeam(1).length).toBe(33);
 })
 
 test("game1: pois and layout are synchronized", () => {
