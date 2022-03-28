@@ -171,6 +171,7 @@ export class Game {
 	private layout: (Piece | null)[][][][] = [];
 	private pois: PieceVec[] = [];
 	private pieceDict: { [id: string]: PieceRule } = {};
+	private cache: Map<string, Move[]> = new Map<string, Move[]>();
 
 	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
 		// Input string contains board size, state, and piece behavior
@@ -493,6 +494,7 @@ export class Game {
 	 * @throws {Error} if the position is not on the board.
 	 */
 	public setPiece(pos: Vec, piece: Piece | null = null): Piece | null {
+		this.clearCache();
 		let target = this.setPieceLayout(pos, piece);
 		if (piece !== null) this.removePoi(pos);
 		else this.setPiecePoi(pos, piece);
@@ -517,7 +519,8 @@ export class Game {
 	 * @throws {Error} if the source position is not on the board.
 	 * @throws {Error} if the target position is not on the board.
 	 */
-	public move(mov: Move): Piece | null {
+	public move(mov: Move, clearCache: boolean = true): Piece | null {
+		if (clearCache) this.clearCache();
 		let piece = this.setPieceLayout(mov.src, null);
 		let target = this.setPieceLayout(mov.dst, piece);
 		// hacky workaround
@@ -539,6 +542,10 @@ export class Game {
 		if (piece === null) return [];
 		let data = this.pieceDict[piece.id];
 
+		if (kingCheck && this.cache.has(Vec.serialize(pos))) {
+			return this.cache.get(Vec.serialize(pos)) as Move[]
+		};
+
 		for (let path of data.pathTree) {
 			let stats = {
 				repeat: null,
@@ -554,6 +561,7 @@ export class Game {
 					checkedMoves.push(moves[i]);
 				}
 			}
+			this.cache.set(Vec.serialize(pos), checkedMoves);
 			return checkedMoves;
 		}
 
@@ -647,6 +655,14 @@ export class Game {
 	}
 
 	/**
+	 * Clears the caches of possible moves.
+	 * @private
+	 */
+	private clearCache() {
+		this.cache.clear();
+	}
+
+	/**
 	 * Runs a function on every piece in the board.
 	 * @param {(loc: Vec, piece: Piece | null) => void} fn The function to run.
 	 */
@@ -674,7 +690,7 @@ export class Game {
 		if (piece === null) return false;
 		let layoutClone = JSON.parse(JSON.stringify(this.layout));
 		let poisClone = this.getPois().slice(0);
-		this.move(mov);
+		this.move(mov, false);
 		let kings: Vec[] = [];
 		for (let poi of this.getPois()) {
 			if (poi.piece.id === "K" && poi.piece.team === team) kings.push(poi.pos)
