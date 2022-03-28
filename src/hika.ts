@@ -38,9 +38,7 @@ export class Vec {
 	 * @returns {boolean} True if the vectors are equal, false otherwise.
 	 */
 	equals(v: Vec): boolean {
-		if (this.x === v.x && this.y === v.y && this.z === v.z && this.w === v.w)
-			return true;
-		else return false;
+		return this.x === v.x && this.y === v.y && this.z === v.z && this.w === v.w;
 	}
 	/**
 	 * Multiplies this vector by a scalar.
@@ -131,8 +129,7 @@ export class Move {
 		this.int = int;
 	}
 	equals(move: Move): boolean {
-		if (this.src.equals(move.src) && this.dst.equals(move.dst)) return true;
-		else return false;
+		return this.src.equals(move.src) && this.dst.equals(move.dst);
 	}
 	/**
 	 * Serializes the move into a string
@@ -453,12 +450,10 @@ export class Game {
 	 */
 
 	public isInBounds(pos: Vec): boolean {
-		if (pos.x >= 0 && pos.x < this.size.x
+		return pos.x >= 0 && pos.x < this.size.x
 			&& pos.y >= 0 && pos.y < this.size.y
 			&& pos.z >= 0 && pos.z < this.size.z
-			&& pos.w >= 0 && pos.w < this.size.w)
-			return true;
-		else return false;
+			&& pos.w >= 0 && pos.w < this.size.w
 	}
 
 	/**
@@ -468,13 +463,8 @@ export class Game {
 	 * @throws {Error} if the position is not on the board.
 	 */
 	public getPiece(pos: Vec): Piece | null {
-		try {
-			let piece = this.layout[pos.w][pos.z][pos.y][pos.x];
-			if (piece === undefined) throw new Error("Cannot access out of bounds position");
-			return piece;
-		} catch(e) {
-			throw new Error("Cannot access out of bounds position");
-		}
+		if (this.isInBounds(pos)) return this.layout[pos.w][pos.z][pos.y][pos.x];
+		throw new Error("Cannot access out of bounds position");
 	}
 
 	private setPieceLayout(pos: Vec, piece: Piece | null = null): Piece | null {
