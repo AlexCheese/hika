@@ -170,7 +170,7 @@ export class Game {
 	private readonly size: Vec;
 	private layout: (Piece | null)[][][][] = [];
 	private pois: PieceVec[] = [];
-	private pieceDict: { [id: string]: PieceRule } = {};
+	private pieceDict: Map<string, PieceRule> = new Map<string, PieceRule>();
 	private cache: Map<string, Move[]> = new Map<string, Move[]>();
 
 	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
@@ -418,14 +418,13 @@ export class Game {
 			]
 		};
 
-		this.pieceDict = {
-			R: rook,
-			B: bishop,
-			Q: queen,
-			N: knight,
-			P: pawn,
-			K: king
-		};
+
+		this.pieceDict.set("R", rook)
+		.set("B", bishop)
+		.set("Q", queen)
+		.set("N", knight)
+		.set("P", pawn)
+		.set("K", king);
 	}
 
 	/**
@@ -540,7 +539,8 @@ export class Game {
 		let moves: Move[] = [];
 		let piece = this.getPiece(pos);
 		if (piece === null) return [];
-		let data = this.pieceDict[piece.id];
+		if (!this.pieceDict.has(piece.id)) throw new Error(`Piece dictionary does not contain piece type ${piece.id}`);
+		let data = this.pieceDict.get(piece.id)!;
 
 		if (kingCheck && this.cache.has(Vec.serialize(pos))) {
 			return this.cache.get(Vec.serialize(pos)) as Move[]
@@ -641,7 +641,7 @@ export class Game {
 				};
 				if (typeof branch == "string") {
 					if (branch == piece.id) return [];
-					let tree = this.pieceDict[branch].pathTree;
+					let tree = this.pieceDict.get(branch)!.pathTree;
 					for (let branch2 of tree) {
 						moves = moves.concat(this.evaluatePath(piece, pos, branch2, statsCopy));
 					}
