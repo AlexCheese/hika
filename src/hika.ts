@@ -38,7 +38,9 @@ export class Vec {
 	 * @returns {boolean} True if the vectors are equal, false otherwise.
 	 */
 	equals(v: Vec): boolean {
-		return this.x === v.x && this.y === v.y && this.z === v.z && this.w === v.w;
+		return (
+			this.x === v.x && this.y === v.y && this.z === v.z && this.w === v.w
+		);
 	}
 	/**
 	 * Multiplies this vector by a scalar.
@@ -64,7 +66,7 @@ export class Vec {
 	 * @see serialize
 	 */
 	static deserialize(str: string): Vec {
-		let [x, y, z, w] = str.split(',').map(Number);
+		let [x, y, z, w] = str.split(",").map(Number);
 		return new Vec(x, y, z, w);
 	}
 
@@ -82,7 +84,9 @@ export class Vec {
 			if (pow > 0) out = toLetters(pow - 1) + out;
 			return out;
 		}
-		return toLetters(this.x) + (this.y+1) + toLetters(this.z) + (this.w+1);
+		return (
+			toLetters(this.x) + (this.y + 1) + toLetters(this.z) + (this.w + 1)
+		);
 	}
 }
 
@@ -135,12 +139,11 @@ export class Move {
 	 * Serializes the move into a string
 	 * @param {Move} mov
 	 * @returns {string}
-	 * @see deserialize 
+	 * @see deserialize
 	 */
 	static serialize(mov: Move): string {
 		let int = "";
-		if (mov.int != null) 
-			int = `/${mov.int.map(Vec.serialize).join('/')}`;
+		if (mov.int != null) int = `/${mov.int.map(Vec.serialize).join("/")}`;
 		return `${Vec.serialize(mov.src)}/${Vec.serialize(mov.dst)}${int}`;
 	}
 	/**
@@ -150,16 +153,22 @@ export class Move {
 	 * @see serialize
 	 */
 	static deserialize(str: string): Move {
-		let arr = str.split('/');
-		if (arr.length === 2) return new Move(Vec.deserialize(arr[0]), Vec.deserialize(arr[1]));
-		else return new Move(Vec.deserialize(arr[0]), Vec.deserialize(arr[1]), arr.slice(2).map(Vec.deserialize));
+		let arr = str.split("/");
+		if (arr.length === 2)
+			return new Move(Vec.deserialize(arr[0]), Vec.deserialize(arr[1]));
+		else
+			return new Move(
+				Vec.deserialize(arr[0]),
+				Vec.deserialize(arr[1]),
+				arr.slice(2).map(Vec.deserialize)
+			);
 	}
 }
 
-export type PieceVec ={
+export type PieceVec = {
 	piece: Piece;
 	pos: Vec;
-}
+};
 
 /**
  * The main class for the library.
@@ -170,17 +179,25 @@ export class Game {
 	private readonly size: Vec;
 	private layout: (Piece | null)[][][][] = [];
 	private pois: PieceVec[] = [];
-	private pieceDict: { [id: string]: PieceRule } = {};
+	private pieceDict: Map<string, PieceRule> = new Map<string, PieceRule>();
 	private cache: Map<string, Move[]> = new Map<string, Move[]>();
 
-	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
+	constructor(
+		input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr",
+		customPieceDict: Map<string, PieceRule> = new Map<string, PieceRule>()
+	) {
 		// Input string contains board size, state, and piece behavior
 		// Currently piece behavior is not processed
 		const inputArr = input.split(" ");
 
 		// Set board size
 		const rawBoardSizeArr = inputArr[0].split(",");
-		this.size = new Vec(parseInt(rawBoardSizeArr[0]), parseInt(rawBoardSizeArr[1]), parseInt(rawBoardSizeArr[2]), parseInt(rawBoardSizeArr[3]));
+		this.size = new Vec(
+			parseInt(rawBoardSizeArr[0]),
+			parseInt(rawBoardSizeArr[1]),
+			parseInt(rawBoardSizeArr[2]),
+			parseInt(rawBoardSizeArr[3])
+		);
 
 		// Initialize layout
 		let wInput = inputArr[1] ? inputArr[1].split("|") : [];
@@ -201,7 +218,11 @@ export class Game {
 						const pid = xInput[x];
 						const skip = parseInt(pid);
 						if (skip) {
-							for (let k = 0; k < skip && yLayer.length < this.size.x; k++) {
+							for (
+								let k = 0;
+								k < skip && yLayer.length < this.size.x;
+								k++
+							) {
 								yLayer.push(null);
 							}
 						} else {
@@ -238,6 +259,9 @@ export class Game {
 		});
 
 		this.initPieceDict();
+
+		// Combine custom piece dict with default piece dict
+		this.pieceDict = new Map([...this.pieceDict, ...customPieceDict]);
 	} // haha love this constructor
 
 	/**
@@ -252,14 +276,14 @@ export class Game {
 					repeat: Infinity,
 					attack: 1,
 					branches: [
-						{ direction: new Vec(1) },
-						{ direction: new Vec(-1) },
-						{ direction: new Vec(0, 1) },
-						{ direction: new Vec(0, -1) },
-						{ direction: new Vec(0, 0, 1) },
-						{ direction: new Vec(0, 0, -1) },
-						{ direction: new Vec(0, 0, 0, 1) },
-						{ direction: new Vec(0, 0, 0, -1) }
+						{direction: new Vec(1)},
+						{direction: new Vec(-1)},
+						{direction: new Vec(0, 1)},
+						{direction: new Vec(0, -1)},
+						{direction: new Vec(0, 0, 1)},
+						{direction: new Vec(0, 0, -1)},
+						{direction: new Vec(0, 0, 0, 1)},
+						{direction: new Vec(0, 0, 0, -1)}
 					]
 				}
 			]
@@ -271,30 +295,30 @@ export class Game {
 					repeat: Infinity,
 					attack: 1,
 					branches: [
-						{ direction: new Vec(1, 1) },
-						{ direction: new Vec(1, -1) },
-						{ direction: new Vec(-1, 1) },
-						{ direction: new Vec(-1, -1) },
-						{ direction: new Vec(1, 0, 1) },
-						{ direction: new Vec(1, 0, -1) },
-						{ direction: new Vec(-1, 0, 1) },
-						{ direction: new Vec(-1, 0, -1) },
-						{ direction: new Vec(1, 0, 0, 1) },
-						{ direction: new Vec(1, 0, 0, -1) },
-						{ direction: new Vec(-1, 0, 0, 1) },
-						{ direction: new Vec(-1, 0, 0, -1) },
-						{ direction: new Vec(0, 1, 1) },
-						{ direction: new Vec(0, 1, -1) },
-						{ direction: new Vec(0, -1, 1) },
-						{ direction: new Vec(0, -1, -1) },
-						{ direction: new Vec(0, 1, 0, 1) },
-						{ direction: new Vec(0, 1, 0, -1) },
-						{ direction: new Vec(0, -1, 0, 1) },
-						{ direction: new Vec(0, -1, 0, -1) },
-						{ direction: new Vec(0, 0, 1, 1) },
-						{ direction: new Vec(0, 0, 1, -1) },
-						{ direction: new Vec(0, 0, -1, 1) },
-						{ direction: new Vec(0, 0, -1, -1) }
+						{direction: new Vec(1, 1)},
+						{direction: new Vec(1, -1)},
+						{direction: new Vec(-1, 1)},
+						{direction: new Vec(-1, -1)},
+						{direction: new Vec(1, 0, 1)},
+						{direction: new Vec(1, 0, -1)},
+						{direction: new Vec(-1, 0, 1)},
+						{direction: new Vec(-1, 0, -1)},
+						{direction: new Vec(1, 0, 0, 1)},
+						{direction: new Vec(1, 0, 0, -1)},
+						{direction: new Vec(-1, 0, 0, 1)},
+						{direction: new Vec(-1, 0, 0, -1)},
+						{direction: new Vec(0, 1, 1)},
+						{direction: new Vec(0, 1, -1)},
+						{direction: new Vec(0, -1, 1)},
+						{direction: new Vec(0, -1, -1)},
+						{direction: new Vec(0, 1, 0, 1)},
+						{direction: new Vec(0, 1, 0, -1)},
+						{direction: new Vec(0, -1, 0, 1)},
+						{direction: new Vec(0, -1, 0, -1)},
+						{direction: new Vec(0, 0, 1, 1)},
+						{direction: new Vec(0, 0, 1, -1)},
+						{direction: new Vec(0, 0, -1, 1)},
+						{direction: new Vec(0, 0, -1, -1)}
 					]
 				}
 			]
@@ -314,54 +338,54 @@ export class Game {
 					repeat: 1,
 					attack: 1,
 					branches: [
-						{ direction: new Vec(2, 1) },
-						{ direction: new Vec(1, 2) },
-						{ direction: new Vec(-2, 1) },
-						{ direction: new Vec(-1, 2) },
-						{ direction: new Vec(2, -1) },
-						{ direction: new Vec(1, -2) },
-						{ direction: new Vec(-2, -1) },
-						{ direction: new Vec(-1, -2) },
-						{ direction: new Vec(2, 0, 1) },
-						{ direction: new Vec(1, 0, 2) },
-						{ direction: new Vec(-2, 0, 1) },
-						{ direction: new Vec(-1, 0, 2) },
-						{ direction: new Vec(2, 0, -1) },
-						{ direction: new Vec(1, 0, -2) },
-						{ direction: new Vec(-2, 0, -1) },
-						{ direction: new Vec(-1, 0, -2) },
-						{ direction: new Vec(2, 0, 0, 1) },
-						{ direction: new Vec(1, 0, 0, 2) },
-						{ direction: new Vec(-2, 0, 0, 1) },
-						{ direction: new Vec(-1, 0, 0, 2) },
-						{ direction: new Vec(2, 0, 0, -1) },
-						{ direction: new Vec(1, 0, 0, -2) },
-						{ direction: new Vec(-2, 0, 0, -1) },
-						{ direction: new Vec(-1, 0, 0, -2) },
-						{ direction: new Vec(0, 2, 1) },
-						{ direction: new Vec(0, 1, 2) },
-						{ direction: new Vec(0, -2, 1) },
-						{ direction: new Vec(0, -1, 2) },
-						{ direction: new Vec(0, 2, -1) },
-						{ direction: new Vec(0, 1, -2) },
-						{ direction: new Vec(0, -2, -1) },
-						{ direction: new Vec(0, -1, -2) },
-						{ direction: new Vec(0, 2, 0, 1) },
-						{ direction: new Vec(0, 1, 0, 2) },
-						{ direction: new Vec(0, -2, 0, 1) },
-						{ direction: new Vec(0, -1, 0, 2) },
-						{ direction: new Vec(0, 2, 0, -1) },
-						{ direction: new Vec(0, 1, 0, -2) },
-						{ direction: new Vec(0, -2, 0, -1) },
-						{ direction: new Vec(0, -1, 0, -2) },
-						{ direction: new Vec(0, 0, 2, 1) },
-						{ direction: new Vec(0, 0, 1, 2) },
-						{ direction: new Vec(0, 0, -2, 1) },
-						{ direction: new Vec(0, 0, -1, 2) },
-						{ direction: new Vec(0, 0, 2, -1) },
-						{ direction: new Vec(0, 0, 1, -2) },
-						{ direction: new Vec(0, 0, -2, -1) },
-						{ direction: new Vec(0, 0, -1, -2) }
+						{direction: new Vec(2, 1)},
+						{direction: new Vec(1, 2)},
+						{direction: new Vec(-2, 1)},
+						{direction: new Vec(-1, 2)},
+						{direction: new Vec(2, -1)},
+						{direction: new Vec(1, -2)},
+						{direction: new Vec(-2, -1)},
+						{direction: new Vec(-1, -2)},
+						{direction: new Vec(2, 0, 1)},
+						{direction: new Vec(1, 0, 2)},
+						{direction: new Vec(-2, 0, 1)},
+						{direction: new Vec(-1, 0, 2)},
+						{direction: new Vec(2, 0, -1)},
+						{direction: new Vec(1, 0, -2)},
+						{direction: new Vec(-2, 0, -1)},
+						{direction: new Vec(-1, 0, -2)},
+						{direction: new Vec(2, 0, 0, 1)},
+						{direction: new Vec(1, 0, 0, 2)},
+						{direction: new Vec(-2, 0, 0, 1)},
+						{direction: new Vec(-1, 0, 0, 2)},
+						{direction: new Vec(2, 0, 0, -1)},
+						{direction: new Vec(1, 0, 0, -2)},
+						{direction: new Vec(-2, 0, 0, -1)},
+						{direction: new Vec(-1, 0, 0, -2)},
+						{direction: new Vec(0, 2, 1)},
+						{direction: new Vec(0, 1, 2)},
+						{direction: new Vec(0, -2, 1)},
+						{direction: new Vec(0, -1, 2)},
+						{direction: new Vec(0, 2, -1)},
+						{direction: new Vec(0, 1, -2)},
+						{direction: new Vec(0, -2, -1)},
+						{direction: new Vec(0, -1, -2)},
+						{direction: new Vec(0, 2, 0, 1)},
+						{direction: new Vec(0, 1, 0, 2)},
+						{direction: new Vec(0, -2, 0, 1)},
+						{direction: new Vec(0, -1, 0, 2)},
+						{direction: new Vec(0, 2, 0, -1)},
+						{direction: new Vec(0, 1, 0, -2)},
+						{direction: new Vec(0, -2, 0, -1)},
+						{direction: new Vec(0, -1, 0, -2)},
+						{direction: new Vec(0, 0, 2, 1)},
+						{direction: new Vec(0, 0, 1, 2)},
+						{direction: new Vec(0, 0, -2, 1)},
+						{direction: new Vec(0, 0, -1, 2)},
+						{direction: new Vec(0, 0, 2, -1)},
+						{direction: new Vec(0, 0, 1, -2)},
+						{direction: new Vec(0, 0, -2, -1)},
+						{direction: new Vec(0, 0, -1, -2)}
 					]
 				}
 			]
@@ -371,28 +395,74 @@ export class Game {
 			pathTree: [
 				{
 					repeat: 1,
-					condition: [{ team: 0 }],
+					condition: [{team: 0}],
 					branches: [
-						{ direction: new Vec(0, 1), attack: 0 },
-                                                { direction: new Vec(0, 0, 0, 1), attack: 0 },
-						{ direction: new Vec(1, 1), attack: 1, condition: [{ enemy: new Vec() }] },
-						{ direction: new Vec(-1, 1), attack: 1, condition: [{ enemy: new Vec() }] },
-						{ direction: new Vec(0, 2), attack: 0, condition: [{ flag: 0 }, { inverted: true, piece: new Vec(0, -1) }] },
-						{ direction: new Vec(1, 1), attack: 1, condition: [{ flag: 1 }] },
-						{ direction: new Vec(-1, 1), attack: 1, condition: [{ flag: 2 }] }
+						{direction: new Vec(0, 1), attack: 0},
+						{direction: new Vec(0, 0, 0, 1), attack: 0},
+						{
+							direction: new Vec(1, 1),
+							attack: 1,
+							condition: [{enemy: new Vec()}]
+						},
+						{
+							direction: new Vec(-1, 1),
+							attack: 1,
+							condition: [{enemy: new Vec()}]
+						},
+						{
+							direction: new Vec(0, 2),
+							attack: 0,
+							condition: [
+								{flag: 0},
+								{inverted: true, piece: new Vec(0, -1)}
+							]
+						},
+						{
+							direction: new Vec(1, 1),
+							attack: 1,
+							condition: [{flag: 1}]
+						},
+						{
+							direction: new Vec(-1, 1),
+							attack: 1,
+							condition: [{flag: 2}]
+						}
 					]
 				},
 				{
 					repeat: 1,
-					condition: [{ team: 1 }],
+					condition: [{team: 1}],
 					branches: [
-						{ direction: new Vec(0, -1), attack: 0 },
-                                                { direction: new Vec(0, 0, 0, -1), attack: 0 },
-						{ direction: new Vec(1, -1), attack: 1, condition: [{ enemy: new Vec() }] },
-						{ direction: new Vec(-1, -1), attack: 1, condition: [{ enemy: new Vec() }] },
-						{ direction: new Vec(0, -2), attack: 0, condition: [{ flag: 0 }, { inverted: true, piece: new Vec(0, 1) }] },
-						{ direction: new Vec(1, -1), attack: 1, condition: [{ flag: 1 }] },
-						{ direction: new Vec(-1, -1), attack: 1, condition: [{ flag: 2 }] }
+						{direction: new Vec(0, -1), attack: 0},
+						{direction: new Vec(0, 0, 0, -1), attack: 0},
+						{
+							direction: new Vec(1, -1),
+							attack: 1,
+							condition: [{enemy: new Vec()}]
+						},
+						{
+							direction: new Vec(-1, -1),
+							attack: 1,
+							condition: [{enemy: new Vec()}]
+						},
+						{
+							direction: new Vec(0, -2),
+							attack: 0,
+							condition: [
+								{flag: 0},
+								{inverted: true, piece: new Vec(0, 1)}
+							]
+						},
+						{
+							direction: new Vec(1, -1),
+							attack: 1,
+							condition: [{flag: 1}]
+						},
+						{
+							direction: new Vec(-1, -1),
+							attack: 1,
+							condition: [{flag: 2}]
+						}
 					]
 				}
 			]
@@ -404,7 +474,7 @@ export class Game {
 					repeat: 1,
 					attack: 1,
 					branches: [
-						"Q",
+						"Q"
 						/*{
 							direction: new Vec(2),
 							condition: [{ flag: 1 }]
@@ -418,14 +488,13 @@ export class Game {
 			]
 		};
 
-		this.pieceDict = {
-			R: rook,
-			B: bishop,
-			Q: queen,
-			N: knight,
-			P: pawn,
-			K: king
-		};
+		this.pieceDict
+			.set("R", rook)
+			.set("B", bishop)
+			.set("Q", queen)
+			.set("N", knight)
+			.set("P", pawn)
+			.set("K", king);
 	}
 
 	/**
@@ -451,10 +520,16 @@ export class Game {
 	 */
 
 	public isInBounds(pos: Vec): boolean {
-		return pos.x >= 0 && pos.x < this.size.x
-			&& pos.y >= 0 && pos.y < this.size.y
-			&& pos.z >= 0 && pos.z < this.size.z
-			&& pos.w >= 0 && pos.w < this.size.w
+		return (
+			pos.x >= 0 &&
+			pos.x < this.size.x &&
+			pos.y >= 0 &&
+			pos.y < this.size.y &&
+			pos.z >= 0 &&
+			pos.z < this.size.z &&
+			pos.w >= 0 &&
+			pos.w < this.size.w
+		);
 	}
 
 	/**
@@ -464,7 +539,8 @@ export class Game {
 	 * @throws {Error} if the position is not on the board.
 	 */
 	public getPiece(pos: Vec): Piece | null {
-		if (this.isInBounds(pos)) return this.layout[pos.w][pos.z][pos.y][pos.x];
+		if (this.isInBounds(pos))
+			return this.layout[pos.w][pos.z][pos.y][pos.x];
 		throw new Error("Cannot access out of bounds position");
 	}
 
@@ -482,7 +558,7 @@ export class Game {
 				this.pois.splice(i, 1);
 			}
 		}
-		if (piece !== null) this.pois.push({pos:pos, piece:piece});
+		if (piece !== null) this.pois.push({pos: pos, piece: piece});
 		return target;
 	}
 
@@ -540,11 +616,15 @@ export class Game {
 		let moves: Move[] = [];
 		let piece = this.getPiece(pos);
 		if (piece === null) return [];
-		let data = this.pieceDict[piece.id];
+		if (!this.pieceDict.has(piece.id))
+			throw new Error(
+				`Piece dictionary does not contain piece type ${piece.id}`
+			);
+		let data = this.pieceDict.get(piece.id)!;
 
 		if (kingCheck && this.cache.has(Vec.serialize(pos))) {
-			return this.cache.get(Vec.serialize(pos)) as Move[]
-		};
+			return this.cache.get(Vec.serialize(pos)) as Move[];
+		}
 
 		for (let path of data.pathTree) {
 			let stats = {
@@ -568,7 +648,12 @@ export class Game {
 		return moves;
 	}
 
-	private evaluatePath(piece: Piece, pos: Vec, path: Path, stats: { repeat: number | null; attack: number | null }): Move[] {
+	private evaluatePath(
+		piece: Piece,
+		pos: Vec,
+		path: Path,
+		stats: {repeat: number | null; attack: number | null}
+	): Move[] {
 		let moves: Move[] = [];
 		if (path.condition) {
 			for (let con of path.condition) {
@@ -576,7 +661,11 @@ export class Game {
 				if (result && con.team != null && piece.team != con.team) {
 					result = false;
 				}
-				if (result && con.flag != null && !piece.flags?.includes(con.flag)) {
+				if (
+					result &&
+					con.flag != null &&
+					!piece.flags?.includes(con.flag)
+				) {
 					result = false;
 				}
 				if (result && con.piece != null) {
@@ -586,7 +675,8 @@ export class Game {
 						pos.z + con.piece.z + (path.direction?.z || 0),
 						pos.w + con.piece.w + (path.direction?.w || 0)
 					);
-					if (!this.isInBounds(loc) || !this.getPiece(loc)) result = false;
+					if (!this.isInBounds(loc) || !this.getPiece(loc))
+						result = false;
 				}
 				if (result && con.enemy != null) {
 					let loc = new Vec(
@@ -613,8 +703,10 @@ export class Game {
 			}
 		}
 
-		if (stats.repeat == null && path.repeat != null && path.repeat >= 1) stats.repeat = path.repeat;
-		if (stats.attack == null && path.attack != null && path.attack >= 0) stats.attack = path.attack;
+		if (stats.repeat == null && path.repeat != null && path.repeat >= 1)
+			stats.repeat = path.repeat;
+		if (stats.attack == null && path.attack != null && path.attack >= 0)
+			stats.attack = path.attack;
 
 		if (path.direction) {
 			let loc = pos.clone();
@@ -641,12 +733,16 @@ export class Game {
 				};
 				if (typeof branch == "string") {
 					if (branch == piece.id) return [];
-					let tree = this.pieceDict[branch].pathTree;
+					let tree = this.pieceDict.get(branch)!.pathTree;
 					for (let branch2 of tree) {
-						moves = moves.concat(this.evaluatePath(piece, pos, branch2, statsCopy));
+						moves = moves.concat(
+							this.evaluatePath(piece, pos, branch2, statsCopy)
+						);
 					}
 				} else {
-					moves = moves.concat(this.evaluatePath(piece, pos, branch, statsCopy));
+					moves = moves.concat(
+						this.evaluatePath(piece, pos, branch, statsCopy)
+					);
 				}
 			}
 		}
@@ -669,8 +765,16 @@ export class Game {
 	public forPiece(fn: (loc: Vec, piece: Piece | null) => void): void {
 		for (let w = 0; w < this.size.w && w < this.layout.length; w++) {
 			for (let z = 0; z < this.size.z && this.layout[w].length; z++) {
-				for (let y = 0; y < this.size.y && this.layout[w][z].length; y++) {
-					for (let x = 0; x < this.size.x && this.layout[w][z][y].length; x++) {
+				for (
+					let y = 0;
+					y < this.size.y && this.layout[w][z].length;
+					y++
+				) {
+					for (
+						let x = 0;
+						x < this.size.x && this.layout[w][z][y].length;
+						x++
+					) {
 						let loc = new Vec(x, y, z, w);
 						fn(loc, this.getPiece(loc));
 					}
@@ -693,7 +797,8 @@ export class Game {
 		this.move(mov, false);
 		let kings: Vec[] = [];
 		for (let poi of this.getPois()) {
-			if (poi.piece.id === "K" && poi.piece.team === team) kings.push(poi.pos)
+			if (poi.piece.id === "K" && poi.piece.team === team)
+				kings.push(poi.pos);
 		}
 		let moves = this.getMovesForTeam(team ? 0 : 1, false);
 		this.layout = layoutClone;
