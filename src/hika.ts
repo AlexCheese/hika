@@ -173,7 +173,7 @@ export class Game {
 	private pieceDict: Map<string, PieceRule> = new Map<string, PieceRule>();
 	private cache: Map<string, Move[]> = new Map<string, Move[]>();
 
-	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr") {
+	constructor(input: string = "8,8,1,1 RNBQKBNR,PPPPPPPP,8,8,8,8,pppppppp,rnbqkbnr", customPieceDict: Map<string, PieceRule> = new Map<string, PieceRule>()) {
 		// Input string contains board size, state, and piece behavior
 		// Currently piece behavior is not processed
 		const inputArr = input.split(" ");
@@ -238,6 +238,9 @@ export class Game {
 		});
 
 		this.initPieceDict();
+
+		// Combine custom piece dict with default piece dict
+		this.pieceDict = new Map([...this.pieceDict, ...customPieceDict]);
 	} // haha love this constructor
 
 	/**
