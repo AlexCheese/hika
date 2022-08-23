@@ -101,6 +101,7 @@ type Condition = {
 	team?: number;
 	flag?: number;
 	piece?: Vec;
+	check?: String[]; // haha
 	enemy?: Vec;
 };
 
@@ -109,6 +110,8 @@ type Path = {
 	condition?: Condition[];
 	attack?: number;
 	direction?: Vec;
+	// no_recurse?: boolean; // stupid lmao
+	action?: String[]; // im so fucking lazy i just wanna rewrite this whole lib
 	branches?: (string | Path)[];
 };
 
@@ -126,11 +129,13 @@ type PieceRule = {
 export class Move {
 	src: Vec;
 	dst: Vec;
-	int?: Vec[];
-	constructor(src: Vec, dst: Vec, int?: Vec[]) {
+	// int?: Vec[];
+	action?: String[];
+	constructor(src: Vec, dst: Vec, /*int?: Vec[],*/ action?: String[]) {
 		this.src = src;
 		this.dst = dst;
-		this.int = int;
+		// this.int = int;
+		this.action = action;
 	}
 	equals(move: Move): boolean {
 		return this.src.equals(move.src) && this.dst.equals(move.dst);
@@ -143,7 +148,7 @@ export class Move {
 	 */
 	static serialize(mov: Move): string {
 		let int = "";
-		if (mov.int != null) int = `/${mov.int.map(Vec.serialize).join("/")}`;
+		// if (mov.int != null) int = `/${mov.int.map(Vec.serialize).join("/")}`;
 		return `${Vec.serialize(mov.src)}/${Vec.serialize(mov.dst)}${int}`;
 	}
 	/**
@@ -160,7 +165,7 @@ export class Move {
 			return new Move(
 				Vec.deserialize(arr[0]),
 				Vec.deserialize(arr[1]),
-				arr.slice(2).map(Vec.deserialize)
+				// arr.slice(2).map(Vec.deserialize)
 			);
 	}
 }
@@ -238,6 +243,8 @@ export class Game {
 								case "K":
 									piece.flags = [1, 2];
 									break;
+								case "R":
+									piece.flags = [0];
 							}
 							yLayer.push(piece);
 						}
@@ -474,15 +481,34 @@ export class Game {
 					repeat: 1,
 					attack: 1,
 					branches: [
-						"Q"
-						/*{
+						"Q",
+						{
 							direction: new Vec(2),
-							condition: [{ flag: 1 }]
+							condition: [
+								{ flag: 1 },
+								{ check: [
+									"safe 0,0,0,0",
+									"safe 1,0,0,0",
+									"safe 2,0,0,0",
+									"flag 3,0,0,0 0"
+								] }
+							],
+							action: ["teleport 3,0,0,0 1,0,0,0", "flag 1", "flag 2"]
 						},
 						{
 							direction: new Vec(-2),
-							condition: [{ flag: 2 }]
-						}*/
+							condition: [
+								{ flag: 2 },
+								{ check: [
+									"safe 0,0,0,0",
+									"safe -1,0,0,0",
+									"safe -2,0,0,0",
+									"safe -3,0,0,0",
+									"flag -4,0,0,0 0"
+								] }
+							],
+							action: ["teleport -4,0,0,0 -1,0,0,0", "flag 1", "flag 2"]
+						}
 					]
 				}
 			]
@@ -600,7 +626,8 @@ export class Game {
 		let piece = this.setPieceLayout(mov.src, null);
 		let target = this.setPieceLayout(mov.dst, piece);
 		// hacky workaround
-		if (piece && piece.flags.includes(0)) piece.flags = [];
+		// if (piece && piece.flags.includes(0)) piece.flags = [];
+		if (piece) piece.flags = [];
 		this.setPiecePoi(mov.dst, piece);
 		this.removePoi(mov.src);
 		return target;
@@ -692,6 +719,32 @@ export class Game {
 						}
 					} else {
 						result = false;
+					}
+				}
+				if (con.check) {
+					// oh god oh fuck
+					for (let ch of con.check) {
+						let ch_arr = ch.split(' ');
+						if (ch_arr.length < 2) continue;
+						switch (ch_arr[0]) {
+							case "safe":
+								// parse ch_arr[1] as relative vec
+								let ch_loc = Vec.deserialize(ch_arr[1]);
+								let target = this.getPiece(pos.add(ch_loc))
+								if (target && !(target.team === piece.team && target.id === piece.id)) {
+									result = false;
+									console.log(`piece fail at ${pos.add(ch_loc)}`);
+									break;
+								}
+                                let ch_mov = new Move(pos, pos.add(ch_loc));
+								if (this.putsKingInCheck(ch_mov, piece.team)) {
+									result = false;
+									console.log(`check fail at ${ch_mov}`);
+								}
+								break;
+							// case "flag":
+							// 	break;
+						}
 					}
 				}
 				if (con.inverted) {
